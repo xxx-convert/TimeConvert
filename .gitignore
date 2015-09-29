@@ -1,0 +1,8 @@
+*.db
+*.pyc
+*.swp
+*.idea
+*.sqlite3
+*.DS_Store
+
+build

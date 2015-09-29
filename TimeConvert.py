@@ -1,0 +1,427 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Copyright (c) 2015 HQM <qiminis0801@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
+import datetime
+import pytz
+import time
+
+
+# In [40]: import pytz
+# In [41]: pytz.all_timezones
+TIME_ZONE = 'Asia/Shanghai'
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
+class _TimeConvert:
+    def __init__(self):
+        pass
+
+    # DATETIME
+
+    def utc_datetime(self):
+        return datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+
+    def local_datetime(self):
+        return self.to_local_datetime(self.utc_datetime())
+
+    def to_local_datetime(self, utc_dt, timezone=TIME_ZONE):
+        local = pytz.timezone(timezone)
+        utc_dt = utc_dt.replace(tzinfo=pytz.utc)
+        return utc_dt.astimezone(local)
+
+    def to_utc_datetime(self, local_dt, timezone=TIME_ZONE):
+        local = pytz.timezone(timezone)
+        local_dt = local.localize(local_dt, is_dst=None)
+        return local_dt.astimezone(pytz.utc)
+
+    def several_days_ago(self, dt, days):
+        return dt - datetime.timedelta(days=days)
+
+    def several_days_coming(self, dt, days):
+        return dt + datetime.timedelta(days=days)
+
+    # STRING
+
+    def utc_string(self, utc_dt=None, format=TIME_FORMAT):
+        return self.datetime_to_string(utc_dt or self.utc_datetime(), format)
+
+    def local_string(self, local_dt=None, format=TIME_FORMAT):
+        return self.datetime_to_string(local_dt or self.local_datetime(), format)
+
+    def datetime_to_string(self, dt, format=TIME_FORMAT):
+        return dt.strftime(format)
+
+    # TIMESTAMP
+
+    def utc_timestamp(self, utc_dt=None):
+        return self.datetime_to_timestamp(utc_dt or self.utc_datetime())
+
+    def local_timestamp(self, local_dt=None):
+        return self.datetime_to_timestamp(local_dt or self.local_datetime())
+
+    def datetime_to_timestamp(self, dt):
+        return int(time.mktime(dt.timetuple()))
+
+    def structime_to_timestamp(self, structime):
+        return int(time.mktime(structime))
+
+    # STRING ==> DATETIME
+
+    def string_to_utc_datetime(self, string, format=TIME_FORMAT):
+        return self.to_utc_datetime(self.string_to_local_datetime(string, format))
+
+    def string_to_local_datetime(self, string, format=TIME_FORMAT):
+        return datetime.datetime.strptime(string, format)
+
+    # STRING ==> TIMESTAMP
+
+    def string_to_timestamp(self, string, format=TIME_FORMAT):
+        return self.structime_to_timestamp(time.strptime(string, format))
+
+    def string_to_utc_timestamp(self, string, format=TIME_FORMAT):
+        return self.datetime_to_timestamp(self.string_to_utc_datetime(string, format))
+
+    def string_to_local_timestamp(self, string, format=TIME_FORMAT):
+        return self.datetime_to_timestamp(self.string_to_local_datetime(string, format))
+
+    # OTHERS
+
+    def string_delta(self, string1, string2, format=TIME_FORMAT, format1='', format2=''):
+        format1, format2 = format1 or format, format2 or format
+        delta = self.string_to_timestamp(string1, format1) - self.string_to_timestamp(string2, format2)
+        delta_second = delta % 60
+        delta_minute = delta / 60 % 60
+        delta_hour = delta / 3600 % 24
+        delta_day = delta / 86400
+        return {
+            'day': delta_day,
+            'hour': delta_hour,
+            'minute': delta_minute,
+            'second': delta_second
+        }
+
+    # AWARE vs NAIVE
+
+    # By design, these four functions don't perform any checks on their arguments.
+    # The caller should ensure that they don't receive an invalid value like None.
+
+    def is_aware(self, value):
+        """
+        Determines if a given datetime.datetime is aware.
+        The logic is described in Python's docs:
+        http://docs.python.org/library/datetime.html#datetime.tzinfo
+        """
+        return value.tzinfo is not None and value.tzinfo.utcoffset(value) is not None
+
+    def is_naive(self, value):
+        """
+        Determines if a given datetime.datetime is naive.
+        The logic is described in Python's docs:
+        http://docs.python.org/library/datetime.html#datetime.tzinfo
+        """
+        return value.tzinfo is None or value.tzinfo.utcoffset(value) is None
+
+    def make_aware(self, value, timezone=TIME_ZONE):
+        """
+        Makes a naive datetime.datetime in a given time zone aware.
+        """
+        timezone = pytz.timezone(timezone)
+        if hasattr(timezone, 'localize'):
+            # This method is available for pytz time zones.
+            return timezone.localize(value, is_dst=None)
+        else:
+            # Check that we won't overwrite the timezone of an aware datetime.
+            if self.is_aware(value):
+                raise ValueError(
+                    "make_aware expects a naive datetime, got %s" % value)
+            # This may be wrong around DST changes!
+            return value.replace(tzinfo=timezone)
+
+    def make_naive(self, value, timezone=TIME_ZONE):
+        """
+        Makes an aware datetime.datetime naive in a given time zone.
+        """
+        timezone = pytz.timezone(timezone)
+        # If `value` is naive, astimezone() will raise a ValueError,
+        # so we don't need to perform a redundant check.
+        value = value.astimezone(timezone)
+        if hasattr(timezone, 'normalize'):
+            # This method is available for pytz time zones.
+            value = timezone.normalize(value)
+        return value.replace(tzinfo=None)
+
+
+_tc = _TimeConvert()
+
+
+class TimeConvert:
+    def __init__(self):
+        pass
+
+    # DATETIME
+
+    @staticmethod
+    def utc_datetime():
+        return _tc.utc_datetime()
+
+    @staticmethod
+    def local_datetime():
+        return _tc.local_datetime()
+
+    @staticmethod
+    def to_utc_datetime(local_dt, timezone=TIME_ZONE):
+        return _tc.to_utc_datetime(local_dt, timezone)
+
+    @staticmethod
+    def to_local_datetime(utc_dt, timezone=TIME_ZONE):
+        return _tc.to_local_datetime(utc_dt, timezone)
+
+    @staticmethod
+    def yesterday_utc_datetime():
+        return _tc.several_days_ago(_tc.utc_datetime(), 1)
+
+    @staticmethod
+    def tomorrow_utc_datetime():
+        return _tc.several_days_coming(_tc.utc_datetime(), 1)
+
+    @staticmethod
+    def yesterday_local_datetime():
+        return _tc.several_days_ago(_tc.local_datetime(), 1)
+
+    @staticmethod
+    def tomorrow_local_datetime():
+        return _tc.several_days_coming(_tc.local_datetime(), 1)
+
+    @staticmethod
+    def several_days_ago(dt, days):
+        return _tc.several_days_ago(dt, days)
+
+    @staticmethod
+    def several_days_coming(dt, days):
+        return _tc.several_days_ago(dt, days)
+
+    # STRING
+
+    @staticmethod
+    def utc_string(utc_dt=None, format=TIME_FORMAT):
+        return _tc.utc_string(utc_dt, format)
+
+    @staticmethod
+    def local_string(local_dt=None, format=TIME_FORMAT):
+        return _tc.local_string(local_dt, format)
+
+    @staticmethod
+    def datetime_to_string(dt, format=TIME_FORMAT):
+        return dt.strftime(format)
+
+    # TIMESTAMP
+
+    @staticmethod
+    def utc_timestamp(utc_dt=None):
+        return _tc.utc_timestamp()
+
+    @staticmethod
+    def local_timestamp(local_dt=None):
+        return _tc.local_timestamp()
+
+    @staticmethod
+    def datetime_to_timestamp(dt):
+        return _tc.datetime_to_timestamp(dt)
+
+    # STRING ==> DATETIME
+
+    @staticmethod
+    def string_to_utc_datetime(string, format=TIME_FORMAT):
+        return _tc.string_to_utc_datetime(string, format)
+
+    @staticmethod
+    def string_to_local_datetime(string, format=TIME_FORMAT):
+        return _tc.string_to_local_datetime(string, format)
+
+    # STRING ==> TIMESTAMP
+
+    @staticmethod
+    def string_to_timestamp(string, format=TIME_FORMAT):
+        return _tc.string_to_timestamp(string, format)
+
+    @staticmethod
+    def string_to_utc_timestamp(string, format=TIME_FORMAT):
+        return _tc.string_to_utc_timestamp(string, format)
+
+    @staticmethod
+    def string_to_local_timestamp(string, format=TIME_FORMAT):
+        return _tc.string_to_local_timestamp(string, format)
+
+    # OTHERS
+
+    @staticmethod
+    def string_delta(string1, string2, format=TIME_FORMAT, format1='', format2=''):
+        return _tc.string_delta(string1, string2, format, format1, format2)
+
+    # AWARE vs NAIVE
+
+    # By design, these four functions don't perform any checks on their arguments.
+    # The caller should ensure that they don't receive an invalid value like None.
+
+    @staticmethod
+    def is_aware(value):
+        return _tc.is_aware(value)
+
+    @staticmethod
+    def is_naive(value):
+        return _tc.is_naive(value)
+
+    @staticmethod
+    def make_aware(value, timezone=TIME_ZONE):
+        return _tc.make_aware(value, timezone)
+
+    @staticmethod
+    def make_naive(value, timezone=TIME_ZONE):
+        return _tc.make_naive(value, timezone)
+
+
+def main():
+    tc = TimeConvert()
+
+    # DATETIME
+
+    print ">> utc_datetime()"
+    print "    Exec: {0}".format("tc.utc_datetime()")
+    print "    Result: {0}".format(tc.utc_datetime())
+    print
+    print ">> local_datetime()"
+    print "    Exec: {0}".format("tc.local_datetime()")
+    print "    Result: {0}".format(tc.local_datetime())
+    print
+    print ">> to_utc_datetime(local_dt, timezone=TIME_ZONE)"
+    print "    Exec: {0}".format("tc.to_utc_datetime(datetime.datetime.now(), timezone=TIME_ZONE)")
+    print "    Result: {0}".format(tc.to_utc_datetime(datetime.datetime.now(), timezone=TIME_ZONE))
+    print
+    print ">> to_local_datetime(utc_dt, timezone=TIME_ZONE)"
+    print "    Exec: {0}".format("tc.to_local_datetime(datetime.datetime.utcnow(), timezone=TIME_ZONE)")
+    print "    Result: {0}".format(tc.to_local_datetime(datetime.datetime.utcnow(), timezone=TIME_ZONE))
+    print
+    print ">> yesterday_utc_datetime()"
+    print "    Exec: {0}".format("tc.yesterday_utc_datetime()")
+    print "    Result: {0}".format(tc.yesterday_utc_datetime())
+    print
+    print ">> tomorrow_utc_datetime()"
+    print "    Exec: {0}".format("tc.tomorrow_utc_datetime()")
+    print "    Result: {0}".format(tc.tomorrow_utc_datetime())
+    print
+    print ">> yesterday_local_datetime()"
+    print "    Exec: {0}".format("tc.yesterday_local_datetime()")
+    print "    Result: {0}".format(tc.yesterday_local_datetime())
+    print
+    print ">> tomorrow_local_datetime()"
+    print "    Exec: {0}".format("tc.tomorrow_local_datetime()")
+    print "    Result: {0}".format(tc.tomorrow_local_datetime())
+    print
+
+    # STRING
+
+    print ">> utc_string(utc_dt=None, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.utc_string(utc_dt=None, format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.utc_string(utc_dt=None, format=TIME_FORMAT))
+    print
+    print ">> local_string(local_dt=None, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.local_string(local_dt=None, format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.local_string(local_dt=None, format=TIME_FORMAT))
+    print
+    print ">> datetime_to_string(dt, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.datetime_to_string(datetime.datetime.now(), format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.datetime_to_string(datetime.datetime.now(), format=TIME_FORMAT))
+    print
+
+    # TIMESTAMP
+
+    print ">> utc_timestamp(utc_dt=None)"
+    print "    Exec: {0}".format("tc.utc_timestamp(utc_dt=None)")
+    print "    Result: {0}".format(tc.utc_timestamp(utc_dt=None))
+    print
+    print ">> local_timestamp(local_dt=None)"
+    print "    Exec: {0}".format("tc.local_timestamp(local_dt=None)")
+    print "    Result: {0}".format(tc.local_timestamp(local_dt=None))
+    print
+    print ">> datetime_to_timestamp(dt, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.datetime_to_timestamp(datetime.datetime.now())")
+    print "    Result: {0}".format(tc.datetime_to_timestamp(datetime.datetime.now()))
+    print
+
+    # STRING ==> DATETIME
+
+    print ">> string_to_utc_datetime(string, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.string_to_utc_datetime('2015-10-04 12:12:12', format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.string_to_utc_datetime('2015-10-04 12:12:12', format=TIME_FORMAT))
+    print
+    print ">> string_to_local_datetime(string, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.string_to_local_datetime('2015-10-04 12:12:12', format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.string_to_local_datetime('2015-10-04 12:12:12', format=TIME_FORMAT))
+    print
+
+    # STRING ==> TIMESTAMP
+
+    print ">> string_to_timestamp(string, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.string_to_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.string_to_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT))
+    print
+    print ">> string_to_utc_timestamp(string, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.string_to_utc_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.string_to_utc_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT))
+    print
+    print ">> string_to_local_timestamp(string, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.string_to_local_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT)")
+    print "    Result: {0}".format(tc.string_to_local_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT))
+    print
+
+    # OTHERS
+
+    print ">> string_delta(string1, string2, format=TIME_FORMAT, format1='', format2='')"
+    print "    Exec: {0}".format("tc.string_delta('2015-09-10 10:10:10', '2015-09-09 09:09:09')")
+    print "    Result: {0}".format(tc.string_delta('2015-09-10 10:10:10', '2015-09-09 09:09:09'))
+    print
+
+    # AWARE vs NAIVE
+
+    print ">> is_aware(value)"
+    print "    Exec: {0}".format("tc.is_aware(tc.utc_datetime())")
+    print "    Result: {0}".format(tc.is_aware(tc.utc_datetime()))
+    print
+    print ">> make_naive(value, timezone=TIME_ZONE)"
+    print "    Exec: {0}".format("tc.make_naive(tc.utc_datetime(), timezone=TIME_ZONE)")
+    print "    Result: {0}".format(tc.make_naive(tc.utc_datetime(), timezone=TIME_ZONE))
+    print
+    print ">> is_naive(value)"
+    print "    Exec: {0}".format("tc.is_naive(datetime.datetime.now())")
+    print "    Result: {0}".format(tc.is_naive(datetime.datetime.now()))
+    print
+    print ">> make_aware(value, timezone=TIME_ZONE)"
+    print "    Exec: {0}".format("tc.make_aware(datetime.datetime.now(), timezone=TIME_ZONE)")
+    print "    Result: {0}".format(tc.make_aware(datetime.datetime.now(), timezone=TIME_ZONE))
+    print
+
+if __name__ == '__main__':
+    main()
