@@ -78,7 +78,11 @@ Method
 
     def string_to_local_timestamp(string, format=TIME_FORMAT):
 
-    # OTHERS
+    # TIME_DELTA
+
+    def timestamp_delta(stamp1, stamp2):
+
+    def datetime_delta(dt1, dt2):
 
     def string_delta(string1, string2, format=TIME_FORMAT, format1='', format2=''):
 

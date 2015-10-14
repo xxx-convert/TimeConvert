@@ -107,21 +107,30 @@ class _TimeConvert:
     def string_to_local_timestamp(self, string, format=TIME_FORMAT):
         return self.datetime_to_timestamp(self.string_to_local_datetime(string, format))
 
-    # OTHERS
+    # TIME_DELTA
 
-    def string_delta(self, string1, string2, format=TIME_FORMAT, format1='', format2=''):
-        format1, format2 = format1 or format, format2 or format
-        delta = self.string_to_timestamp(string1, format1) - self.string_to_timestamp(string2, format2)
+    def timestamp_delta(self, stamp1, stamp2):
+        delta = stamp1 - stamp2
+        sign = delta / abs(delta)
+        delta = abs(delta)
         delta_second = delta % 60
         delta_minute = delta / 60 % 60
         delta_hour = delta / 3600 % 24
         delta_day = delta / 86400
         return {
+            'sign': sign,
             'day': delta_day,
             'hour': delta_hour,
             'minute': delta_minute,
-            'second': delta_second
+            'second': delta_second,
+            'total_seconds': delta
         }
+
+    def datetime_delta(self, dt1, dt2):
+        return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2))
+
+    def string_delta(self, string1, string2, format=TIME_FORMAT, format1='', format2=''):
+        return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format))
 
     # AWARE vs NAIVE
 
@@ -275,7 +284,15 @@ class TimeConvert:
     def string_to_local_timestamp(string, format=TIME_FORMAT):
         return _tc.string_to_local_timestamp(string, format)
 
-    # OTHERS
+    # TIME_DELTA
+
+    @staticmethod
+    def timestamp_delta(stamp1, stamp2):
+        return _tc.timestamp_delta(stamp1, stamp2)
+
+    @staticmethod
+    def datetime_delta(dt1, dt2):
+        return _tc.datetime_delta(dt1, dt2)
 
     @staticmethod
     def string_delta(string1, string2, format=TIME_FORMAT, format1='', format2=''):
@@ -397,8 +414,15 @@ def main():
     print "    Result: {0}".format(tc.string_to_local_timestamp('2015-10-04 12:12:12', format=TIME_FORMAT))
     print
 
-    # OTHERS
-
+    # TIME_DELTA
+    print ">> timestamp_delta(stamp1, stamp2)"
+    print "    Exec: {0}".format("tc.timestamp_delta(tc.utc_timestamp(), tc.utc_timestamp() + 10000)")
+    print "    Result: {0}".format(tc.timestamp_delta(tc.utc_timestamp(), tc.utc_timestamp() + 10000))
+    print
+    print ">> datetime_delta(dt1, dt2)"
+    print "    Exec: {0}".format("tc.datetime_delta(tc.utc_datetime(), tc.tomorrow_utc_datetime())")
+    print "    Result: {0}".format(tc.datetime_delta(tc.utc_datetime(), tc.tomorrow_utc_datetime()))
+    print
     print ">> string_delta(string1, string2, format=TIME_FORMAT, format1='', format2='')"
     print "    Exec: {0}".format("tc.string_delta('2015-09-10 10:10:10', '2015-09-09 09:09:09')")
     print "    Result: {0}".format(tc.string_delta('2015-09-10 10:10:10', '2015-09-09 09:09:09'))
