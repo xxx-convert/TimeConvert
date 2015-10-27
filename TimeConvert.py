@@ -36,8 +36,9 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 class _TimeConvert:
-    def __init__(self):
-        pass
+    def __init__(self, timezone=None, format=None):
+        self.TIME_ZONE = timezone or TIME_ZONE
+        self.TIME_FORMAT = format or TIME_FORMAT
 
     # DATETIME
 
@@ -111,12 +112,12 @@ class _TimeConvert:
 
     def timestamp_delta(self, stamp1, stamp2):
         delta = stamp1 - stamp2
-        sign = delta / abs(delta)
-        delta = abs(delta)
-        delta_second = delta % 60
-        delta_minute = delta / 60 % 60
-        delta_hour = delta / 3600 % 24
-        delta_day = delta / 86400
+        abs_delta = abs(delta)
+        sign = abs_delta and delta / abs_delta
+        delta_second = abs_delta % 60
+        delta_minute = abs_delta / 60 % 60
+        delta_hour = abs_delta / 3600 % 24
+        delta_day = abs_delta / 86400
         return {
             'sign': sign,
             'day': delta_day,
@@ -187,8 +188,9 @@ _tc = _TimeConvert()
 
 
 class TimeConvert:
-    def __init__(self):
-        pass
+    def __init__(self, timezone=None, format=None):
+        self.TIME_ZONE = timezone or TIME_ZONE
+        self.TIME_FORMAT = format or TIME_FORMAT
 
     # DATETIME
 
@@ -322,6 +324,17 @@ class TimeConvert:
 
 def main():
     tc = TimeConvert()
+
+    # Variable
+
+    print ">> tc.TIME_ZONE"
+    print "    Exec: {0}".format("tc.TIME_ZONE")
+    print "    Result: {0}".format(tc.TIME_ZONE)
+    print
+    print ">> tc.TIME_FORM"
+    print "    Exec: {0}".format("tc.TIME_FORMAT")
+    print "    Result: {0}".format(tc.TIME_FORMAT)
+    print
 
     # DATETIME
 
