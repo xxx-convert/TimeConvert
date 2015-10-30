@@ -232,7 +232,7 @@ class TimeConvert:
 
     @staticmethod
     def several_days_coming(dt, days):
-        return _tc.several_days_ago(dt, days)
+        return _tc.several_days_coming(dt, days)
 
     # STRING
 
