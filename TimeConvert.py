@@ -58,11 +58,17 @@ class _TimeConvert:
         local_dt = local.localize(local_dt, is_dst=None)
         return local_dt.astimezone(pytz.utc)
 
-    def several_days_ago(self, dt, days):
-        return dt - datetime.timedelta(days=days)
+    def several_days_ago(self, dt=None, days=0):
+        return (dt or self.utc_datetime()) - datetime.timedelta(days=days)
 
-    def several_days_coming(self, dt, days):
-        return dt + datetime.timedelta(days=days)
+    def several_days_coming(self, dt=None, days=0):
+        return (dt or self.utc_datetime()) + datetime.timedelta(days=days)
+
+    def several_time_ago(self, dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return (dt or self.utc_datetime()) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+
+    def several_time_coming(self, dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return (dt or self.utc_datetime()) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     # STRING
 
@@ -114,16 +120,18 @@ class _TimeConvert:
         delta = stamp1 - stamp2
         abs_delta = abs(delta)
         sign = abs_delta and delta / abs_delta
-        delta_second = abs_delta % 60
-        delta_minute = abs_delta / 60 % 60
-        delta_hour = abs_delta / 3600 % 24
-        delta_day = abs_delta / 86400
+        delta_seconds = abs_delta % 60
+        delta_minutes = abs_delta / 60 % 60
+        delta_hours = abs_delta / 3600 % 24
+        delta_days = abs_delta / 86400
+        delta_weeks = abs_delta / 604800
         return {
             'sign': sign,
-            'day': delta_day,
-            'hour': delta_hour,
-            'minute': delta_minute,
-            'second': delta_second,
+            'weeks': delta_weeks,
+            'days': delta_days,
+            'hours': delta_hours,
+            'minutes': delta_minutes,
+            'seconds': delta_seconds,
             'total_seconds': delta
         }
 
@@ -227,12 +235,20 @@ class TimeConvert:
         return _tc.several_days_coming(_tc.local_datetime(), 1)
 
     @staticmethod
-    def several_days_ago(dt, days):
+    def several_days_ago(dt=None, days=0):
         return _tc.several_days_ago(dt, days)
 
     @staticmethod
-    def several_days_coming(dt, days):
+    def several_days_coming(dt=None, days=0):
         return _tc.several_days_coming(dt, days)
+
+    @staticmethod
+    def several_time_ago(dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return _tc.several_time_ago(dt, days, seconds, microseconds, milliseconds, minutes, hours, weeks)
+
+    @staticmethod
+    def several_time_coming(dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return _tc.several_time_coming(dt, days, seconds, microseconds, milliseconds, minutes, hours, weeks)
 
     # STRING
 
