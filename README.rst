@@ -99,3 +99,7 @@ Method
     def make_aware(value, timezone=TIME_ZONE):
 
     def make_naive(value, timezone=TIME_ZONE):
+
+    # OTHER
+
+    def total_seconds(td):  # timedelta

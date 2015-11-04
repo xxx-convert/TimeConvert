@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: TimeConvert
-Version: 1.0.5
+Version: 1.0.6
 Summary: Time Convert for Humans
 Home-page: https://github.com/Brightcells/TimeConvert
 Author: Hackathon
@@ -107,6 +107,10 @@ Description: ===========
             def make_aware(value, timezone=TIME_ZONE):
         
             def make_naive(value, timezone=TIME_ZONE):
+        
+            # OTHER
+        
+            def total_seconds(td):  # timedelta
         
 Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable

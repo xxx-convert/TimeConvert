@@ -337,6 +337,13 @@ class TimeConvert:
     def make_naive(value, timezone=TIME_ZONE):
         return _tc.make_naive(value, timezone)
 
+    # OTHER
+
+    @staticmethod
+    def total_seconds(td):
+        """Total seconds in the duration."""
+        return ((td.days * 86400 + td.seconds) * 10**6 + td.microseconds) / 10**6
+
 
 def main():
     tc = TimeConvert()
