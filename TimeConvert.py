@@ -40,6 +40,14 @@ class _TimeConvert:
         self.TIME_ZONE = timezone or TIME_ZONE
         self.TIME_FORMAT = format or TIME_FORMAT
 
+    # VALIDATE
+    def validate_string(self, string, format=TIME_FORMAT):
+        try:
+            time.strptime(string, format)
+        except ValueError:
+            return False
+        return True
+
     # DATETIME
 
     def utc_datetime(self):
@@ -200,6 +208,11 @@ class TimeConvert:
         self.TIME_ZONE = timezone or TIME_ZONE
         self.TIME_FORMAT = format or TIME_FORMAT
 
+    # VALIDATE
+    @staticmethod
+    def validate_string(string, format=TIME_FORMAT):
+        return _tc.validate_string(string, format)
+
     # DATETIME
 
     @staticmethod
@@ -282,24 +295,34 @@ class TimeConvert:
 
     @staticmethod
     def string_to_utc_datetime(string, format=TIME_FORMAT):
+        if not _tc.validate_string(string, format):
+            return None
         return _tc.string_to_utc_datetime(string, format)
 
     @staticmethod
     def string_to_local_datetime(string, format=TIME_FORMAT):
+        if not _tc.validate_string(string, format):
+            return None
         return _tc.string_to_local_datetime(string, format)
 
     # STRING ==> TIMESTAMP
 
     @staticmethod
     def string_to_timestamp(string, format=TIME_FORMAT):
+        if not _tc.validate_string(string, format):
+            return None
         return _tc.string_to_timestamp(string, format)
 
     @staticmethod
     def string_to_utc_timestamp(string, format=TIME_FORMAT):
+        if not _tc.validate_string(string, format):
+            return None
         return _tc.string_to_utc_timestamp(string, format)
 
     @staticmethod
     def string_to_local_timestamp(string, format=TIME_FORMAT):
+        if not _tc.validate_string(string, format):
+            return None
         return _tc.string_to_local_timestamp(string, format)
 
     # TIME_DELTA
@@ -314,6 +337,8 @@ class TimeConvert:
 
     @staticmethod
     def string_delta(string1, string2, format=TIME_FORMAT, format1='', format2=''):
+        if (not _tc.validate_string(string1, format1 or format)) or (not _tc.validate_string(string2, format2 or format)):
+            return None
         return _tc.string_delta(string1, string2, format, format1, format2)
 
     # AWARE vs NAIVE

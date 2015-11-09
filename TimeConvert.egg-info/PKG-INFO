@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: TimeConvert
-Version: 1.0.6
+Version: 1.0.7
 Summary: Time Convert for Humans
 Home-page: https://github.com/Brightcells/TimeConvert
 Author: Hackathon
@@ -33,6 +33,9 @@ Description: ===========
         ======
         
         ::
+        
+            # VALIDATE
+            def validate_string(string, format=TIME_FORMAT):
         
             # DATETIME
         

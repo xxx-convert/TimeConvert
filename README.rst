@@ -26,6 +26,9 @@ Method
 
 ::
 
+    # VALIDATE
+    def validate_string(string, format=TIME_FORMAT):
+
     # DATETIME
 
     def utc_datetime():
