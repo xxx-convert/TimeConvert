@@ -124,7 +124,7 @@ class _TimeConvert:
 
     # TIME_DELTA
 
-    def timestamp_delta(self, stamp1, stamp2):
+    def timestamp_delta(self, stamp1, stamp2, interval=None):
         delta = stamp1 - stamp2
         abs_delta = abs(delta)
         sign = abs_delta and delta / abs_delta
@@ -140,14 +140,15 @@ class _TimeConvert:
             'hours': delta_hours,
             'minutes': delta_minutes,
             'seconds': delta_seconds,
-            'total_seconds': delta
+            'total_seconds': abs_delta,
+            'interval': None and abs_delta >= interval
         }
 
-    def datetime_delta(self, dt1, dt2):
-        return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2))
+    def datetime_delta(self, dt1, dt2, interval=None):
+        return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2), interval)
 
-    def string_delta(self, string1, string2, format=TIME_FORMAT, format1='', format2=''):
-        return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format))
+    def string_delta(self, string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
+        return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format), interval)
 
     # AWARE vs NAIVE
 
@@ -328,18 +329,18 @@ class TimeConvert:
     # TIME_DELTA
 
     @staticmethod
-    def timestamp_delta(stamp1, stamp2):
-        return _tc.timestamp_delta(stamp1, stamp2)
+    def timestamp_delta(stamp1, stamp2, interval=None):
+        return _tc.timestamp_delta(stamp1, stamp2, interval)
 
     @staticmethod
-    def datetime_delta(dt1, dt2):
-        return _tc.datetime_delta(dt1, dt2)
+    def datetime_delta(dt1, dt2, interval=None):
+        return _tc.datetime_delta(dt1, dt2, interval)
 
     @staticmethod
-    def string_delta(string1, string2, format=TIME_FORMAT, format1='', format2=''):
+    def string_delta(string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
         if (not _tc.validate_string(string1, format1 or format)) or (not _tc.validate_string(string2, format2 or format)):
             return None
-        return _tc.string_delta(string1, string2, format, format1, format2)
+        return _tc.string_delta(string1, string2, interval, format, format1, format2)
 
     # AWARE vs NAIVE
 
