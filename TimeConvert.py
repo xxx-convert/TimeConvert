@@ -141,7 +141,7 @@ class _TimeConvert:
             'minutes': delta_minutes,
             'seconds': delta_seconds,
             'total_seconds': abs_delta,
-            'interval': None and abs_delta >= interval
+            'interval': interval and abs_delta >= interval
         }
 
     def datetime_delta(self, dt1, dt2, interval=None):

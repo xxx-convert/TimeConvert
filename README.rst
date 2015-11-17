@@ -87,11 +87,13 @@ Method
 
     # TIME_DELTA
 
-    def timestamp_delta(stamp1, stamp2):
+    def timestamp_delta(stamp1, stamp2, interval=None):
 
-    def datetime_delta(dt1, dt2):
+    def datetime_delta(dt1, dt2, interval=None):
 
-    def string_delta(string1, string2, format=TIME_FORMAT, format1='', format2=''):
+    def string_delta(string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
+
+    PS: interval(seconds) —— Time1 - Time2 >= interval ?
 
     # AWARE vs NAIVE
 
