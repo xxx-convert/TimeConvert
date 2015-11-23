@@ -141,6 +141,8 @@ class _TimeConvert:
             'minutes': delta_minutes,
             'seconds': delta_seconds,
             'total_seconds': abs_delta,
+            'delta': delta,
+            'count_down_seconds': abs(min(delta, 0)),
             'interval': interval and abs_delta >= interval
         }
 
@@ -368,7 +370,7 @@ class TimeConvert:
     @staticmethod
     def total_seconds(td):
         """Total seconds in the duration."""
-        return ((td.days * 86400 + td.seconds) * 10**6 + td.microseconds) / 10**6
+        return ((td.days * 86400 + td.seconds) * 10 ** 6 + td.microseconds) / 10 ** 6
 
 
 def main():
