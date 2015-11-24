@@ -152,6 +152,17 @@ class _TimeConvert:
     def string_delta(self, string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
         return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format), interval)
 
+    # TIME_COUNT_DOWN
+
+    def timestamp_countdown(self, stamp):
+        return abs(min((self.utc_timestamp() - stamp), 0))
+
+    def datetime_countdown(self, dt):
+        return self.timestamp_countdown(self.datetime_to_timestamp(dt))
+
+    def string_countdown(self, string, format=TIME_FORMAT):
+        return self.timestamp_countdown(self.string_to_timestamp(string, format))
+
     # AWARE vs NAIVE
 
     # By design, these four functions don't perform any checks on their arguments.
@@ -344,6 +355,22 @@ class TimeConvert:
             return None
         return _tc.string_delta(string1, string2, interval, format, format1, format2)
 
+    # TIME_COUNT_DOWN
+
+    @staticmethod
+    def timestamp_countdown(stamp):
+        return _tc.timestamp_countdown(stamp)
+
+    @staticmethod
+    def datetime_countdown(dt):
+        return _tc.datetime_countdown(dt)
+
+    @staticmethod
+    def string_countdown(string, format=TIME_FORMAT):
+        if not _tc.validate_string(string, format):
+            return None
+        return _tc.string_countdown(string)
+
     # AWARE vs NAIVE
 
     # By design, these four functions don't perform any checks on their arguments.
@@ -490,6 +517,20 @@ def main():
     print ">> string_delta(string1, string2, format=TIME_FORMAT, format1='', format2='')"
     print "    Exec: {0}".format("tc.string_delta('2015-09-10 10:10:10', '2015-09-09 09:09:09')")
     print "    Result: {0}".format(tc.string_delta('2015-09-10 10:10:10', '2015-09-09 09:09:09'))
+    print
+
+    # TIME_COUNT_DOWN
+    print ">> timestamp_countdown(stamp)"
+    print "    Exec: {0}".format("tc.timestamp_countdown(tc.utc_timestamp() + 10000)")
+    print "    Result: {0}".format(tc.timestamp_countdown(tc.utc_timestamp() + 10000))
+    print
+    print ">> datetime_countdown(dt)"
+    print "    Exec: {0}".format("tc.datetime_countdown(tc.tomorrow_utc_datetime())")
+    print "    Result: {0}".format(tc.datetime_countdown(tc.tomorrow_utc_datetime()))
+    print
+    print ">> string_countdown(string, format=TIME_FORMAT)"
+    print "    Exec: {0}".format("tc.string_countdown('2999-09-09 09:09:09')")
+    print "    Result: {0}".format(tc.string_countdown('2999-09-09 09:09:09'))
     print
 
     # AWARE vs NAIVE

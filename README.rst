@@ -27,6 +27,7 @@ Method
 ::
 
     # VALIDATE
+
     def validate_string(string, format=TIME_FORMAT):
 
     # DATETIME
@@ -94,6 +95,14 @@ Method
     def string_delta(string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
 
     PS: interval(seconds) —— Time1 - Time2 >= interval ?
+
+    # TIME_COUNT_DOWN
+
+    def timestamp_countdown(stamp):
+
+    def datetime_countdown(dt):
+
+    def string_countdown(string, format=TIME_FORMAT):
 
     # AWARE vs NAIVE
 
