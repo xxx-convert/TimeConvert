@@ -22,6 +22,14 @@ Usage
     tc.utc_timestamp()
 
 
+Variable
+=====
+
+::
+
+    from TimeConvert import TIME_ZONE, TIME_FORMAT
+
+
 Method
 ======
 

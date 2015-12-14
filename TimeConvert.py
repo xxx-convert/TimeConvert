@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -42,6 +41,8 @@ class _TimeConvert:
 
     # VALIDATE
     def validate_string(self, string, format=TIME_FORMAT):
+        if not string:
+            return False
         try:
             time.strptime(string, format)
         except ValueError:
