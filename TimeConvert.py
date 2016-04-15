@@ -399,3 +399,6 @@ class TimeConvert:
     def total_seconds(td):
         """Total seconds in the duration."""
         return ((td.days * 86400 + td.seconds) * 10 ** 6 + td.microseconds) / 10 ** 6
+
+
+TimeConvert = TimeConvert()
