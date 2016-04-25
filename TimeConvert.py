@@ -24,9 +24,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import datetime
-import pytz
 import time
 
+import pytz
 
 # In [40]: import pytz
 # In [41]: pytz.all_timezones
@@ -34,12 +34,13 @@ TIME_ZONE = 'Asia/Shanghai'
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
-class _TimeConvert:
+class TimeConvert:
     def __init__(self, timezone=None, format=None):
         self.TIME_ZONE = timezone or TIME_ZONE
         self.TIME_FORMAT = format or TIME_FORMAT
 
     # VALIDATE
+
     def validate_string(self, string, format=TIME_FORMAT):
         if not string:
             return False
@@ -51,21 +52,33 @@ class _TimeConvert:
 
     # DATETIME
 
-    def utc_datetime(self):
+    def utc_datetime(self, microsecond=True):
         return datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
 
-    def local_datetime(self):
+    def local_datetime(self, microsecond=True):
         return self.to_local_datetime(self.utc_datetime())
+
+    def to_utc_datetime(self, local_dt, timezone=TIME_ZONE):
+        local = pytz.timezone(timezone)
+        local_dt = local.localize(local_dt, is_dst=None)
+        return local_dt.astimezone(pytz.utc)
 
     def to_local_datetime(self, utc_dt, timezone=TIME_ZONE):
         local = pytz.timezone(timezone)
         utc_dt = utc_dt.replace(tzinfo=pytz.utc)
         return utc_dt.astimezone(local)
 
-    def to_utc_datetime(self, local_dt, timezone=TIME_ZONE):
-        local = pytz.timezone(timezone)
-        local_dt = local.localize(local_dt, is_dst=None)
-        return local_dt.astimezone(pytz.utc)
+    def yesterday_utc_datetime(self):
+        return self.several_days_ago(self.utc_datetime(), 1)
+
+    def tomorrow_utc_datetime(self):
+        return self.several_days_coming(self.utc_datetime(), 1)
+
+    def yesterday_local_datetime(self):
+        return self.several_days_ago(self.local_datetime(), 1)
+
+    def tomorrow_local_datetime(self):
+        return self.several_days_coming(self.local_datetime(), 1)
 
     def several_days_ago(self, dt=None, days=0):
         return (dt or self.utc_datetime()) - datetime.timedelta(days=days)
@@ -107,20 +120,30 @@ class _TimeConvert:
     # STRING ==> DATETIME
 
     def string_to_utc_datetime(self, string, format=TIME_FORMAT):
+        if not self.validate_string(string, format):
+            return None
         return self.to_utc_datetime(self.string_to_local_datetime(string, format))
 
     def string_to_local_datetime(self, string, format=TIME_FORMAT):
+        if not self.validate_string(string, format):
+            return None
         return datetime.datetime.strptime(string, format)
 
     # STRING ==> TIMESTAMP
 
     def string_to_timestamp(self, string, format=TIME_FORMAT):
+        if not self.validate_string(string, format):
+            return None
         return self.structime_to_timestamp(time.strptime(string, format))
 
     def string_to_utc_timestamp(self, string, format=TIME_FORMAT):
+        if not self.validate_string(string, format):
+            return None
         return self.datetime_to_timestamp(self.string_to_utc_datetime(string, format))
 
     def string_to_local_timestamp(self, string, format=TIME_FORMAT):
+        if not self.validate_string(string, format):
+            return None
         return self.datetime_to_timestamp(self.string_to_local_datetime(string, format))
 
     # TIME_DELTA
@@ -151,6 +174,8 @@ class _TimeConvert:
         return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2), interval)
 
     def string_delta(self, string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
+        if (not self.validate_string(string1, format1 or format)) or (not self.validate_string(string2, format2 or format)):
+            return None
         return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format), interval)
 
     # TIME_COUNT_DOWN
@@ -162,6 +187,8 @@ class _TimeConvert:
         return self.timestamp_countdown(self.datetime_to_timestamp(dt))
 
     def string_countdown(self, string, format=TIME_FORMAT):
+        if not self.validate_string(string, format):
+            return None
         return self.timestamp_countdown(self.string_to_timestamp(string, format))
 
     # AWARE vs NAIVE
@@ -199,7 +226,7 @@ class _TimeConvert:
                 raise ValueError(
                     "make_aware expects a naive datetime, got %s" % value)
             # This may be wrong around DST changes!
-            return value.replace(tzinfo=timezone)
+        return value.replace(tzinfo=timezone)
 
     def make_naive(self, value, timezone=TIME_ZONE):
         """
@@ -214,189 +241,9 @@ class _TimeConvert:
             value = timezone.normalize(value)
         return value.replace(tzinfo=None)
 
-
-_tc = _TimeConvert()
-
-
-class TimeConvert:
-    def __init__(self, timezone=None, format=None):
-        self.TIME_ZONE = timezone or TIME_ZONE
-        self.TIME_FORMAT = format or TIME_FORMAT
-
-    # VALIDATE
-    @staticmethod
-    def validate_string(string, format=TIME_FORMAT):
-        return _tc.validate_string(string, format)
-
-    # DATETIME
-
-    @staticmethod
-    def utc_datetime():
-        return _tc.utc_datetime()
-
-    @staticmethod
-    def local_datetime():
-        return _tc.local_datetime()
-
-    @staticmethod
-    def to_utc_datetime(local_dt, timezone=TIME_ZONE):
-        return _tc.to_utc_datetime(local_dt, timezone)
-
-    @staticmethod
-    def to_local_datetime(utc_dt, timezone=TIME_ZONE):
-        return _tc.to_local_datetime(utc_dt, timezone)
-
-    @staticmethod
-    def yesterday_utc_datetime():
-        return _tc.several_days_ago(_tc.utc_datetime(), 1)
-
-    @staticmethod
-    def tomorrow_utc_datetime():
-        return _tc.several_days_coming(_tc.utc_datetime(), 1)
-
-    @staticmethod
-    def yesterday_local_datetime():
-        return _tc.several_days_ago(_tc.local_datetime(), 1)
-
-    @staticmethod
-    def tomorrow_local_datetime():
-        return _tc.several_days_coming(_tc.local_datetime(), 1)
-
-    @staticmethod
-    def several_days_ago(dt=None, days=0):
-        return _tc.several_days_ago(dt, days)
-
-    @staticmethod
-    def several_days_coming(dt=None, days=0):
-        return _tc.several_days_coming(dt, days)
-
-    @staticmethod
-    def several_time_ago(dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return _tc.several_time_ago(dt, days, seconds, microseconds, milliseconds, minutes, hours, weeks)
-
-    @staticmethod
-    def several_time_coming(dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return _tc.several_time_coming(dt, days, seconds, microseconds, milliseconds, minutes, hours, weeks)
-
-    # STRING
-
-    @staticmethod
-    def utc_string(utc_dt=None, format=TIME_FORMAT):
-        return _tc.utc_string(utc_dt, format)
-
-    @staticmethod
-    def local_string(local_dt=None, format=TIME_FORMAT):
-        return _tc.local_string(local_dt, format)
-
-    @staticmethod
-    def datetime_to_string(dt, format=TIME_FORMAT):
-        return dt.strftime(format)
-
-    # TIMESTAMP
-
-    @staticmethod
-    def utc_timestamp(utc_dt=None):
-        return _tc.utc_timestamp()
-
-    @staticmethod
-    def local_timestamp(local_dt=None):
-        return _tc.local_timestamp()
-
-    @staticmethod
-    def datetime_to_timestamp(dt):
-        return _tc.datetime_to_timestamp(dt)
-
-    # STRING ==> DATETIME
-
-    @staticmethod
-    def string_to_utc_datetime(string, format=TIME_FORMAT):
-        if not _tc.validate_string(string, format):
-            return None
-        return _tc.string_to_utc_datetime(string, format)
-
-    @staticmethod
-    def string_to_local_datetime(string, format=TIME_FORMAT):
-        if not _tc.validate_string(string, format):
-            return None
-        return _tc.string_to_local_datetime(string, format)
-
-    # STRING ==> TIMESTAMP
-
-    @staticmethod
-    def string_to_timestamp(string, format=TIME_FORMAT):
-        if not _tc.validate_string(string, format):
-            return None
-        return _tc.string_to_timestamp(string, format)
-
-    @staticmethod
-    def string_to_utc_timestamp(string, format=TIME_FORMAT):
-        if not _tc.validate_string(string, format):
-            return None
-        return _tc.string_to_utc_timestamp(string, format)
-
-    @staticmethod
-    def string_to_local_timestamp(string, format=TIME_FORMAT):
-        if not _tc.validate_string(string, format):
-            return None
-        return _tc.string_to_local_timestamp(string, format)
-
-    # TIME_DELTA
-
-    @staticmethod
-    def timestamp_delta(stamp1, stamp2, interval=None):
-        return _tc.timestamp_delta(stamp1, stamp2, interval)
-
-    @staticmethod
-    def datetime_delta(dt1, dt2, interval=None):
-        return _tc.datetime_delta(dt1, dt2, interval)
-
-    @staticmethod
-    def string_delta(string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
-        if (not _tc.validate_string(string1, format1 or format)) or (not _tc.validate_string(string2, format2 or format)):
-            return None
-        return _tc.string_delta(string1, string2, interval, format, format1, format2)
-
-    # TIME_COUNT_DOWN
-
-    @staticmethod
-    def timestamp_countdown(stamp):
-        return _tc.timestamp_countdown(stamp)
-
-    @staticmethod
-    def datetime_countdown(dt):
-        return _tc.datetime_countdown(dt)
-
-    @staticmethod
-    def string_countdown(string, format=TIME_FORMAT):
-        if not _tc.validate_string(string, format):
-            return None
-        return _tc.string_countdown(string)
-
-    # AWARE vs NAIVE
-
-    # By design, these four functions don't perform any checks on their arguments.
-    # The caller should ensure that they don't receive an invalid value like None.
-
-    @staticmethod
-    def is_aware(value):
-        return _tc.is_aware(value)
-
-    @staticmethod
-    def is_naive(value):
-        return _tc.is_naive(value)
-
-    @staticmethod
-    def make_aware(value, timezone=TIME_ZONE):
-        return _tc.make_aware(value, timezone)
-
-    @staticmethod
-    def make_naive(value, timezone=TIME_ZONE):
-        return _tc.make_naive(value, timezone)
-
     # OTHER
 
-    @staticmethod
-    def total_seconds(td):
+    def total_seconds(self, td):
         """Total seconds in the duration."""
         return ((td.days * 86400 + td.seconds) * 10 ** 6 + td.microseconds) / 10 ** 6
 
