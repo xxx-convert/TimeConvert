@@ -28,7 +28,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import datetime
 
-from TimeConvert import TimeConvert as tc, TIME_FORMAT, TIME_ZONE
+from TimeConvert import TimeConvert as tc
+from TimeConvert import TIME_FORMAT, TIME_ZONE
 
 
 def main():

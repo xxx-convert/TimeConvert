@@ -4,7 +4,7 @@ from __future__ import with_statement
 
 from setuptools import setup
 
-version = '1.1.6'
+version = '1.2.0'
 
 
 setup(

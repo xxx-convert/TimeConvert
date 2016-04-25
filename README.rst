@@ -39,11 +39,15 @@ Method
 
     def validate_string(string, format=TIME_FORMAT):
 
+    # REPLACE
+
+    def remove_microsecond(self, dt):
+
     # DATETIME
 
-    def utc_datetime():
+    def utc_datetime(ms=True):
 
-    def local_datetime():
+    def local_datetime(ms=True):
 
     def to_utc_datetime(local_dt, timezone=TIME_ZONE):
 

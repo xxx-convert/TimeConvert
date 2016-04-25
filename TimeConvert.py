@@ -50,13 +50,20 @@ class TimeConvert:
             return False
         return True
 
+    # REPLACE
+
+    def remove_microsecond(self, dt):
+        return dt.replace(microsecond=0)
+
     # DATETIME
 
-    def utc_datetime(self, microsecond=True):
-        return datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+    def utc_datetime(self, ms=True):
+        utc_dt = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        return utc_dt if ms else self.remove_microsecond(utc_dt)
 
-    def local_datetime(self, microsecond=True):
-        return self.to_local_datetime(self.utc_datetime())
+    def local_datetime(self, ms=True):
+        local_dt = self.to_local_datetime(self.utc_datetime())
+        return local_dt if ms else self.remove_microsecond(local_dt)
 
     def to_utc_datetime(self, local_dt, timezone=TIME_ZONE):
         local = pytz.timezone(timezone)
