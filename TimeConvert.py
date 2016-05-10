@@ -39,6 +39,12 @@ class TimeConvert:
         self.TIME_ZONE = timezone or TIME_ZONE
         self.TIME_FORMAT = format or TIME_FORMAT
 
+    # OFFSET
+
+    def offset(self):
+        now_timestamp = time.time()
+        return datetime.datetime.fromtimestamp(now_timestamp) - datetime.datetime.utcfromtimestamp(now_timestamp)
+
     # VALIDATE
 
     def validate_string(self, string, format=TIME_FORMAT):
@@ -135,6 +141,11 @@ class TimeConvert:
         if not self.validate_string(string, format):
             return None
         return datetime.datetime.strptime(string, format)
+
+    def utc_string_to_utc_datetime(self, utc_string, format=TIME_FORMAT):
+        if not self.validate_string(utc_string, format):
+            return None
+        return self.to_utc_datetime(self.string_to_local_datetime(utc_string, format)) + self.offset()
 
     # STRING ==> TIMESTAMP
 

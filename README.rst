@@ -91,6 +91,8 @@ Method
 
     def string_to_local_datetime(string, format=TIME_FORMAT):
 
+    def utc_string_to_utc_datetime(self, utc_string, format=TIME_FORMAT):
+
     # STRING ==> TIMESTAMP
 
     def string_to_timestamp(string, format=TIME_FORMAT):

@@ -120,6 +120,10 @@ def main():
     print("    Exec: {}".format("tc.string_to_local_datetime('2015-10-04 12:12:12', format=TIME_FORMAT)"))
     print("    Result: {}".format(tc.string_to_local_datetime('2015-10-04 12:12:12', format=TIME_FORMAT)))
     print()
+    print(">> utc_string_to_utc_datetime(utc_string, format=TIME_FORMAT)")
+    print("    Exec: {}".format("tc.utc_string_to_utc_datetime('2015-10-04 12:12:12', format=TIME_FORMAT)"))
+    print("    Result: {}".format(tc.utc_string_to_utc_datetime('2015-10-04 12:12:12', format=TIME_FORMAT)))
+    print()
 
     # STRING ==> TIMESTAMP
 
