@@ -28,6 +28,7 @@ import time
 
 import pytz
 
+
 # In [40]: import pytz
 # In [41]: pytz.all_timezones
 TIME_ZONE = 'Asia/Shanghai'
@@ -59,7 +60,7 @@ class TimeConvert:
     # REPLACE
 
     def remove_microsecond(self, dt):
-        return dt.replace(microsecond=0)
+        return dt.replace(microsecond=0) if hasattr(dt, 'replace') else dt
 
     # DATETIME
 
