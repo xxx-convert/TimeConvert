@@ -210,6 +210,15 @@ class TimeConvert:
             return None
         return self.timestamp_countdown(self.string_to_timestamp(string, format))
 
+    # MIDNIGHT
+
+    def datetime_midnight(self, dt=None):
+        return (dt or self.utc_datetime()).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def seconds_since_midnight(self, dt=None):
+        dt = dt or self.utc_datetime()
+        return self.total_seconds(dt - self.datetime_midnight(dt))
+
     # AWARE vs NAIVE
 
     # By design, these four functions don't perform any checks on their arguments.

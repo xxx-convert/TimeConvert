@@ -119,6 +119,12 @@ Method
 
     def string_countdown(string, format=TIME_FORMAT):
 
+    # MIDNIGHT
+
+    def datetime_midnight(self, dt=None):
+
+    def seconds_since_midnight(self, dt=None):
+
     # AWARE vs NAIVE
 
     def is_aware(value):

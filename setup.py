@@ -12,7 +12,7 @@ setup(
     name='TimeConvert',
     version=version,
     keywords='',
-    description='Time Convert for Humans',
+    description='Time Convert for Humans™',
     long_description=open('README.rst').read(),
 
     url='https://github.com/Brightcells/TimeConvert',
