@@ -121,9 +121,17 @@ Method
 
     # MIDNIGHT
 
-    def datetime_midnight(self, dt=None):
+    def utc_datetime_midnight(self, utc_dt=None):
 
-    def seconds_since_midnight(self, dt=None):
+    def utc_seconds_since_midnight(self, utc_dt=None):
+
+    def local_datetime_midnight(self, local_dt=None):
+
+    def local_seconds_since_midnight(self, local_dt=None):
+
+    def datetime_midnight(self, dt=None, utc=False):
+
+    def seconds_since_midnight(self, dt=None, utc=False):
 
     # AWARE vs NAIVE
 

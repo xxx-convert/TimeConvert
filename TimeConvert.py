@@ -212,12 +212,25 @@ class TimeConvert:
 
     # MIDNIGHT
 
-    def datetime_midnight(self, dt=None):
-        return (dt or self.utc_datetime()).replace(hour=0, minute=0, second=0, microsecond=0)
+    def utc_datetime_midnight(self, utc_dt=None):
+        return (utc_dt or self.utc_datetime()).replace(hour=0, minute=0, second=0, microsecond=0)
 
-    def seconds_since_midnight(self, dt=None):
-        dt = dt or self.utc_datetime()
-        return self.total_seconds(dt - self.datetime_midnight(dt))
+    def utc_seconds_since_midnight(self, utc_dt=None):
+        utc_dt = utc_dt or self.utc_datetime()
+        return self.total_seconds(utc_dt - self.utc_datetime_midnight(utc_dt))
+
+    def local_datetime_midnight(self, local_dt=None):
+        return (local_dt or self.local_datetime()).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def local_seconds_since_midnight(self, local_dt=None):
+        local_dt = local_dt or self.local_datetime()
+        return self.total_seconds(local_dt - self.local_datetime_midnight(local_dt))
+
+    def datetime_midnight(self, dt=None, utc=False):
+        return self.utc_datetime_midnight(dt) if utc else self.local_datetime_midnight()
+
+    def seconds_since_midnight(self, dt=None, utc=False):
+        return self.utc_seconds_since_midnight(dt) if utc else self.local_seconds_since_midnight()
 
     # AWARE vs NAIVE
 
