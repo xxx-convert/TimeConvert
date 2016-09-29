@@ -1,28 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-Copyright (c) 2015 HQM <qiminis0801@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""
-
 import datetime
 import time
 
@@ -31,14 +8,18 @@ import pytz
 
 # In [40]: import pytz
 # In [41]: pytz.all_timezones
-TIME_ZONE = 'Asia/Shanghai'
-TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 class TimeConvert:
     def __init__(self, timezone=None, format=None):
-        self.TIME_ZONE = timezone or TIME_ZONE
-        self.TIME_FORMAT = format or TIME_FORMAT
+        self.TIME_ZONE = timezone or 'Asia/Shanghai'
+        self.TIME_FORMAT = format or '%Y-%m-%d %H:%M:%S'
+
+    def timezone(self, timezone=None):
+        return timezone or self.TIME_ZONE
+
+    def format(self, format=None):
+        return format or self.TIME_FORMAT
 
     # OFFSET
 
@@ -48,11 +29,11 @@ class TimeConvert:
 
     # VALIDATE
 
-    def validate_string(self, string, format=TIME_FORMAT):
+    def validate_string(self, string, format=None):
         if not string:
             return False
         try:
-            time.strptime(string, format)
+            time.strptime(string, self.format(format))
         except ValueError:
             return False
         return True
@@ -72,13 +53,17 @@ class TimeConvert:
         local_dt = self.to_local_datetime(self.utc_datetime())
         return local_dt if ms else self.remove_microsecond(local_dt)
 
-    def to_utc_datetime(self, local_dt, timezone=TIME_ZONE):
-        local = pytz.timezone(timezone)
+    def to_utc_datetime(self, local_dt, timezone=None):
+        try:
+            local_dt = self.make_naive(local_dt)
+        except ValueError:
+            pass
+        local = pytz.timezone(self.timezone(timezone))
         local_dt = local.localize(local_dt, is_dst=None)
         return local_dt.astimezone(pytz.utc)
 
-    def to_local_datetime(self, utc_dt, timezone=TIME_ZONE):
-        local = pytz.timezone(timezone)
+    def to_local_datetime(self, utc_dt, timezone=None):
+        local = pytz.timezone(self.timezone(timezone))
         utc_dt = utc_dt.replace(tzinfo=pytz.utc)
         return utc_dt.astimezone(local)
 
@@ -108,14 +93,14 @@ class TimeConvert:
 
     # STRING
 
-    def utc_string(self, utc_dt=None, format=TIME_FORMAT):
-        return self.datetime_to_string(utc_dt or self.utc_datetime(), format)
+    def utc_string(self, utc_dt=None, format=None):
+        return self.datetime_to_string(utc_dt or self.utc_datetime(), self.format(format))
 
-    def local_string(self, local_dt=None, format=TIME_FORMAT):
-        return self.datetime_to_string(local_dt or self.local_datetime(), format)
+    def local_string(self, local_dt=None, format=None):
+        return self.datetime_to_string(local_dt or self.local_datetime(), self.format(format))
 
-    def datetime_to_string(self, dt, format=TIME_FORMAT):
-        return dt.strftime(format)
+    def datetime_to_string(self, dt, format=None):
+        return dt.strftime(self.format(format))
 
     # TIMESTAMP
 
@@ -133,34 +118,40 @@ class TimeConvert:
 
     # STRING ==> DATETIME
 
-    def string_to_utc_datetime(self, string, format=TIME_FORMAT):
+    def string_to_utc_datetime(self, string, format=None):
+        format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return self.to_utc_datetime(self.string_to_local_datetime(string, format))
 
-    def string_to_local_datetime(self, string, format=TIME_FORMAT):
+    def string_to_local_datetime(self, string, format=None):
+        format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return datetime.datetime.strptime(string, format)
 
-    def utc_string_to_utc_datetime(self, utc_string, format=TIME_FORMAT):
+    def utc_string_to_utc_datetime(self, utc_string, format=None):
+        format = self.format(format)
         if not self.validate_string(utc_string, format):
             return None
         return self.to_utc_datetime(self.string_to_local_datetime(utc_string, format)) + self.offset()
 
     # STRING ==> TIMESTAMP
 
-    def string_to_timestamp(self, string, format=TIME_FORMAT):
+    def string_to_timestamp(self, string, format=None):
+        format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return self.structime_to_timestamp(time.strptime(string, format))
 
-    def string_to_utc_timestamp(self, string, format=TIME_FORMAT):
+    def string_to_utc_timestamp(self, string, format=None):
+        format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return self.datetime_to_timestamp(self.string_to_utc_datetime(string, format))
 
-    def string_to_local_timestamp(self, string, format=TIME_FORMAT):
+    def string_to_local_timestamp(self, string, format=None):
+        format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return self.datetime_to_timestamp(self.string_to_local_datetime(string, format))
@@ -192,7 +183,8 @@ class TimeConvert:
     def datetime_delta(self, dt1, dt2, interval=None):
         return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2), interval)
 
-    def string_delta(self, string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
+    def string_delta(self, string1, string2, interval=None, format=None, format1='', format2=''):
+        format = self.format(format)
         if (not self.validate_string(string1, format1 or format)) or (not self.validate_string(string2, format2 or format)):
             return None
         return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format), interval)
@@ -205,7 +197,8 @@ class TimeConvert:
     def datetime_countdown(self, dt):
         return self.timestamp_countdown(self.datetime_to_timestamp(dt))
 
-    def string_countdown(self, string, format=TIME_FORMAT):
+    def string_countdown(self, string, format=None):
+        format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return self.timestamp_countdown(self.string_to_timestamp(string, format))
@@ -253,27 +246,26 @@ class TimeConvert:
         """
         return value.tzinfo is None or value.tzinfo.utcoffset(value) is None
 
-    def make_aware(self, value, timezone=TIME_ZONE):
+    def make_aware(self, value, timezone=None):
         """
         Makes a naive datetime.datetime in a given time zone aware.
         """
-        timezone = pytz.timezone(timezone)
+        timezone = pytz.timezone(self.timezone(timezone))
         if hasattr(timezone, 'localize'):
             # This method is available for pytz time zones.
             return timezone.localize(value, is_dst=None)
         else:
             # Check that we won't overwrite the timezone of an aware datetime.
             if self.is_aware(value):
-                raise ValueError(
-                    "make_aware expects a naive datetime, got %s" % value)
+                raise ValueError('make_aware expects a naive datetime, got %s' % value)
             # This may be wrong around DST changes!
         return value.replace(tzinfo=timezone)
 
-    def make_naive(self, value, timezone=TIME_ZONE):
+    def make_naive(self, value, timezone=None):
         """
         Makes an aware datetime.datetime naive in a given time zone.
         """
-        timezone = pytz.timezone(timezone)
+        timezone = pytz.timezone(self.timezone(timezone))
         # If `value` is naive, astimezone() will raise a ValueError,
         # so we don't need to perform a redundant check.
         value = value.astimezone(timezone)
