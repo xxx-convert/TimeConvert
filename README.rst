@@ -61,13 +61,13 @@ Method
 
     def tomorrow_local_datetime():
 
-    def several_days_ago(dt=None, days):
+    def several_days_ago(dt=None, utc=True, days=0):
 
-    def several_days_coming(dt=None, days):
+    def several_days_coming(dt=None, utc=True, days=0):
 
-    def several_time_ago(dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+    def several_time_ago(dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
 
-    def several_time_coming(dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+    def several_time_coming(dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
 
     # STRING
 

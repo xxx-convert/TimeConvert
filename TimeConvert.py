@@ -21,6 +21,17 @@ class TimeConvert:
     def format(self, format=None):
         return format or self.TIME_FORMAT
 
+    # PRIVATE
+
+    def __utc_datetime(self, utc_dt=None):
+        return utc_dt or self.utc_datetime()
+
+    def __local_datetime(self, local_dt=None):
+        return local_dt or self.local_datetime()
+
+    def __datetime(self, dt=None, utc=True):
+        return dt or (self.utc_datetime() if utc else self.local_datetime())
+
     # OFFSET
 
     def offset(self):
@@ -68,36 +79,36 @@ class TimeConvert:
         return utc_dt.astimezone(local)
 
     def yesterday_utc_datetime(self):
-        return self.several_days_ago(self.utc_datetime(), 1)
+        return self.several_days_ago(self.utc_datetime(), days=1)
 
     def tomorrow_utc_datetime(self):
-        return self.several_days_coming(self.utc_datetime(), 1)
+        return self.several_days_coming(self.utc_datetime(), days=1)
 
     def yesterday_local_datetime(self):
-        return self.several_days_ago(self.local_datetime(), 1)
+        return self.several_days_ago(self.local_datetime(), days=1)
 
     def tomorrow_local_datetime(self):
-        return self.several_days_coming(self.local_datetime(), 1)
+        return self.several_days_coming(self.local_datetime(), days=1)
 
-    def several_days_ago(self, dt=None, days=0):
-        return (dt or self.utc_datetime()) - datetime.timedelta(days=days)
+    def several_days_ago(self, dt=None, utc=True, days=0):
+        return self.__datetime(dt, utc) - datetime.timedelta(days=days)
 
-    def several_days_coming(self, dt=None, days=0):
-        return (dt or self.utc_datetime()) + datetime.timedelta(days=days)
+    def several_days_coming(self, dt=None, utc=True, days=0):
+        return self.__datetime(dt, utc) + datetime.timedelta(days=days)
 
-    def several_time_ago(self, dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return (dt or self.utc_datetime()) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+    def several_time_ago(self, dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.__datetime(dt, utc) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
-    def several_time_coming(self, dt=None, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return (dt or self.utc_datetime()) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+    def several_time_coming(self, dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.__datetime(dt, utc) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     # STRING
 
     def utc_string(self, utc_dt=None, format=None):
-        return self.datetime_to_string(utc_dt or self.utc_datetime(), self.format(format))
+        return self.datetime_to_string(self.__utc_datetime(utc_dt), self.format(format))
 
     def local_string(self, local_dt=None, format=None):
-        return self.datetime_to_string(local_dt or self.local_datetime(), self.format(format))
+        return self.datetime_to_string(self.__local_datetime(local_dt), self.format(format))
 
     def datetime_to_string(self, dt, format=None):
         return dt.strftime(self.format(format))
@@ -105,10 +116,10 @@ class TimeConvert:
     # TIMESTAMP
 
     def utc_timestamp(self, utc_dt=None):
-        return self.datetime_to_timestamp(utc_dt or self.utc_datetime())
+        return self.datetime_to_timestamp(self.__utc_datetime(utc_dt))
 
     def local_timestamp(self, local_dt=None):
-        return self.datetime_to_timestamp(local_dt or self.local_datetime())
+        return self.datetime_to_timestamp(self.__local_datetime(local_dt))
 
     def datetime_to_timestamp(self, dt):
         return int(time.mktime(dt.timetuple()))
@@ -206,24 +217,24 @@ class TimeConvert:
     # MIDNIGHT
 
     def utc_datetime_midnight(self, utc_dt=None):
-        return (utc_dt or self.utc_datetime()).replace(hour=0, minute=0, second=0, microsecond=0)
+        return (self.__utc_datetime(utc_dt)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     def utc_seconds_since_midnight(self, utc_dt=None):
-        utc_dt = utc_dt or self.utc_datetime()
+        utc_dt = self.__utc_datetime(utc_dt)
         return self.total_seconds(utc_dt - self.utc_datetime_midnight(utc_dt))
 
     def local_datetime_midnight(self, local_dt=None):
-        return (local_dt or self.local_datetime()).replace(hour=0, minute=0, second=0, microsecond=0)
+        return (self.__local_datetime(local_dt)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     def local_seconds_since_midnight(self, local_dt=None):
-        local_dt = local_dt or self.local_datetime()
+        local_dt = self.__local_datetime(local_dt)
         return self.total_seconds(local_dt - self.local_datetime_midnight(local_dt))
 
     def datetime_midnight(self, dt=None, utc=False):
-        return self.utc_datetime_midnight(dt) if utc else self.local_datetime_midnight()
+        return self.utc_datetime_midnight(dt) if utc else self.local_datetime_midnight(dt)
 
     def seconds_since_midnight(self, dt=None, utc=False):
-        return self.utc_seconds_since_midnight(dt) if utc else self.local_seconds_since_midnight()
+        return self.utc_seconds_since_midnight(dt) if utc else self.local_seconds_since_midnight(dt)
 
     # AWARE vs NAIVE
 
