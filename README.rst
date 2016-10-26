@@ -27,7 +27,11 @@ Variable
 
 ::
 
+    # Default Asia/Shanghai & %Y-%m-%d %H:%M:%S
     from TimeConvert import TIME_ZONE, TIME_FORMAT
+
+    # Deassign TIME_ZONE & TIME_FORMAT
+    tc.__init__(timezone='Asia/Shanghai', format='%Y-%m-%d %H:%M:%S')
 
 
 Method
@@ -53,13 +57,13 @@ Method
 
     def to_local_datetime(utc_dt, timezone=TIME_ZONE):
 
-    def yesterday_utc_datetime():
+    def yesterday_utc_datetime(ms=True):
 
-    def tomorrow_utc_datetime():
+    def tomorrow_utc_datetime(ms=True):
 
-    def yesterday_local_datetime():
+    def yesterday_local_datetime(ms=True):
 
-    def tomorrow_local_datetime():
+    def tomorrow_local_datetime(ms=True):
 
     def several_days_ago(dt=None, utc=True, days=0):
 

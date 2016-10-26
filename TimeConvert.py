@@ -32,6 +32,9 @@ class TimeConvert:
     def __datetime(self, dt=None, utc=True):
         return dt or (self.utc_datetime() if utc else self.local_datetime())
 
+    def __remove_ms_or_not(self, dt=None, ms=True):
+        return dt if ms else self.remove_microsecond(dt)
+
     # OFFSET
 
     def offset(self):
@@ -57,12 +60,10 @@ class TimeConvert:
     # DATETIME
 
     def utc_datetime(self, ms=True):
-        utc_dt = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        return utc_dt if ms else self.remove_microsecond(utc_dt)
+        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms)
 
     def local_datetime(self, ms=True):
-        local_dt = self.to_local_datetime(self.utc_datetime())
-        return local_dt if ms else self.remove_microsecond(local_dt)
+        return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime()), ms)
 
     def to_utc_datetime(self, local_dt, timezone=None):
         try:
@@ -78,17 +79,17 @@ class TimeConvert:
         utc_dt = utc_dt.replace(tzinfo=pytz.utc)
         return utc_dt.astimezone(local)
 
-    def yesterday_utc_datetime(self):
-        return self.several_days_ago(self.utc_datetime(), days=1)
+    def yesterday_utc_datetime(self, ms=True):
+        return self.__remove_ms_or_not(self.several_days_ago(self.utc_datetime(), days=1), ms)
 
-    def tomorrow_utc_datetime(self):
-        return self.several_days_coming(self.utc_datetime(), days=1)
+    def tomorrow_utc_datetime(self, ms=True):
+        return self.__remove_ms_or_not(self.several_days_coming(self.utc_datetime(), days=1), ms)
 
-    def yesterday_local_datetime(self):
-        return self.several_days_ago(self.local_datetime(), days=1)
+    def yesterday_local_datetime(self, ms=True):
+        return self.__remove_ms_or_not(self.several_days_ago(self.local_datetime(), days=1), ms)
 
-    def tomorrow_local_datetime(self):
-        return self.several_days_coming(self.local_datetime(), days=1)
+    def tomorrow_local_datetime(self, ms=True):
+        return self.__remove_ms_or_not(self.several_days_coming(self.local_datetime(), days=1), ms)
 
     def several_days_ago(self, dt=None, utc=True, days=0):
         return self.__datetime(dt, utc) - datetime.timedelta(days=days)
