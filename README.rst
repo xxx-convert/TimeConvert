@@ -51,7 +51,7 @@ Method
 
     def utc_datetime(ms=True):
 
-    def local_datetime(ms=True):
+    def local_datetime(ms=True, timezone=None):
 
     def to_utc_datetime(local_dt, timezone=TIME_ZONE):
 
@@ -61,9 +61,9 @@ Method
 
     def tomorrow_utc_datetime(ms=True):
 
-    def yesterday_local_datetime(ms=True):
+    def yesterday_local_datetime(ms=True, timezone=None):
 
-    def tomorrow_local_datetime(ms=True):
+    def tomorrow_local_datetime(ms=True, timezone=None):
 
     def several_days_ago(dt=None, utc=True, days=0):
 
