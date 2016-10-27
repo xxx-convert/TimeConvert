@@ -63,7 +63,7 @@ class TimeConvert:
         return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms)
 
     def local_datetime(self, ms=True, timezone=None):
-        return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), timezone), ms)
+        return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), self.timezone(timezone)), ms)
 
     def to_utc_datetime(self, local_dt, timezone=None):
         try:
@@ -86,10 +86,10 @@ class TimeConvert:
         return self.__remove_ms_or_not(self.several_days_coming(self.utc_datetime(), days=1), ms)
 
     def yesterday_local_datetime(self, ms=True, timezone=None):
-        return self.__remove_ms_or_not(self.several_days_ago(self.local_datetime(timezone=timezone), days=1), ms)
+        return self.__remove_ms_or_not(self.several_days_ago(self.local_datetime(timezone=self.timezone(timezone)), days=1), ms)
 
     def tomorrow_local_datetime(self, ms=True, timezone=None):
-        return self.__remove_ms_or_not(self.several_days_coming(self.local_datetime(timezone=timezone), days=1), ms)
+        return self.__remove_ms_or_not(self.several_days_coming(self.local_datetime(timezone=self.timezone(timezone)), days=1), ms)
 
     def several_days_ago(self, dt=None, utc=True, days=0):
         return self.__datetime(dt, utc) - datetime.timedelta(days=days)
