@@ -60,10 +60,10 @@ class TimeConvert:
     # DATETIME
 
     def utc_datetime(self, ms=True):
-        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms)
+        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms=ms)
 
     def local_datetime(self, ms=True, timezone=None):
-        return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), self.timezone(timezone)), ms)
+        return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def to_utc_datetime(self, local_dt, timezone=None):
         try:
@@ -80,16 +80,16 @@ class TimeConvert:
         return utc_dt.astimezone(local)
 
     def yesterday_utc_datetime(self, ms=True):
-        return self.__remove_ms_or_not(self.several_days_ago(self.utc_datetime(), days=1), ms)
+        return self.__remove_ms_or_not(self.several_days_ago(self.utc_datetime(), days=1), ms=ms)
 
     def tomorrow_utc_datetime(self, ms=True):
-        return self.__remove_ms_or_not(self.several_days_coming(self.utc_datetime(), days=1), ms)
+        return self.__remove_ms_or_not(self.several_days_coming(self.utc_datetime(), days=1), ms=ms)
 
     def yesterday_local_datetime(self, ms=True, timezone=None):
-        return self.__remove_ms_or_not(self.several_days_ago(self.local_datetime(timezone=self.timezone(timezone)), days=1), ms)
+        return self.__remove_ms_or_not(self.several_days_ago(self.local_datetime(timezone=self.timezone(timezone)), days=1), ms=ms)
 
     def tomorrow_local_datetime(self, ms=True, timezone=None):
-        return self.__remove_ms_or_not(self.several_days_coming(self.local_datetime(timezone=self.timezone(timezone)), days=1), ms)
+        return self.__remove_ms_or_not(self.several_days_coming(self.local_datetime(timezone=self.timezone(timezone)), days=1), ms=ms)
 
     def several_days_ago(self, dt=None, utc=True, days=0):
         return self.__datetime(dt, utc) - datetime.timedelta(days=days)
@@ -117,10 +117,10 @@ class TimeConvert:
     # TIMESTAMP
 
     def utc_timestamp(self, utc_dt=None, ms=False):
-        return self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms)
+        return self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms=ms)
 
     def local_timestamp(self, local_dt=None, ms=False):
-        return self.datetime_to_timestamp(self.__local_datetime(local_dt), ms)
+        return self.datetime_to_timestamp(self.__local_datetime(local_dt), ms=ms)
 
     def datetime_to_timestamp(self, dt, ms=False):
         # http://stackoverflow.com/questions/26161156/python-converting-string-to-timestamp-with-microseconds
@@ -156,26 +156,19 @@ class TimeConvert:
     # STRING ==> TIMESTAMP
 
     def string_to_timestamp(self, string, format=None, ms=False):
-        format = self.format(format)
-        if not self.validate_string(string, format):
-            return None
-        # ``time.strptime(string, format)`` == ``datetime.datetime().strptime(string, format).timetuple()``
-        # But direct use ``structime_to_timestamp`` will lost miscrosecond
-        # Such as ``datetime.datetime.strptime('2012-12-12 12:12:12 121212', '%Y-%m-%d %H:%M:%S %f').microsecond``
-        # return self.structime_to_timestamp(time.strptime(string, format))
-        return self.datetime_to_timestamp(datetime.datetime.strptime(string, format), ms)
+        return self.string_to_local_timestamp(string, format, ms=ms)
 
     def string_to_utc_timestamp(self, string, format=None, ms=False):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.datetime_to_timestamp(self.string_to_utc_datetime(string, format))
+        return self.datetime_to_timestamp(self.string_to_utc_datetime(string, format), ms=ms)
 
     def string_to_local_timestamp(self, string, format=None, ms=False):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.datetime_to_timestamp(self.string_to_local_datetime(string, format))
+        return self.datetime_to_timestamp(self.string_to_local_datetime(string, format), ms=ms)
 
     # TIME_DELTA
 
