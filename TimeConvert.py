@@ -65,19 +65,42 @@ class TimeConvert:
     def local_datetime(self, ms=True, timezone=None):
         return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), self.timezone(timezone)), ms=ms)
 
-    def to_utc_datetime(self, local_dt, timezone=None):
+    def is_utc_datetime(self, dt):
+        return dt.tzinfo == pytz.utc
+
+    def is_local_datetime(self, dt, local_tz=None):
+        # In [100]: pytz.timezone('Asia/Shanghai')
+        # Out[100]: <DstTzInfo 'Asia/Shanghai' LMT+8:06:00 STD>
+
+        # In [101]: tc.local_datetime().tzinfo
+        # Out[101]: <DstTzInfo 'Asia/Shanghai' CST+8:00:00 STD>
+
+        # In [102]: pytz.timezone('Asia/Shanghai') == tc.local_datetime().tzinfo
+        # Out[102]: False
+
+        # In [103]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
+        # Out[103]: True
+
+        return str(dt.tzinfo) == str(local_tz)
+
+    def to_utc_datetime(self, dt, timezone=None):
+        if self.is_utc_datetime(dt):
+            return dt
         try:
-            local_dt = self.make_naive(local_dt)
+            dt = self.make_naive(dt)
         except ValueError:
             pass
-        local = pytz.timezone(self.timezone(timezone))
-        local_dt = local.localize(local_dt, is_dst=None)
+        local_tz = pytz.timezone(self.timezone(timezone))
+        local_dt = local_tz.localize(dt, is_dst=None)
         return local_dt.astimezone(pytz.utc)
 
-    def to_local_datetime(self, utc_dt, timezone=None):
-        local = pytz.timezone(self.timezone(timezone))
-        utc_dt = utc_dt.replace(tzinfo=pytz.utc)
-        return utc_dt.astimezone(local)
+    def to_local_datetime(self, dt, timezone=None):
+        tzname = self.timezone(timezone)
+        if self.is_local_datetime(dt, local_tz=tzname):
+            return dt
+        local_tz = pytz.timezone(tzname)
+        utc_dt = dt.replace(tzinfo=pytz.utc)
+        return utc_dt.astimezone(local_tz)
 
     def yesterday_utc_datetime(self, ms=True):
         return self.__remove_ms_or_not(self.several_days_ago(self.utc_datetime(), days=1), ms=ms)

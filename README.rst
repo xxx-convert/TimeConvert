@@ -53,9 +53,13 @@ Method
 
     def local_datetime(ms=True, timezone=None):
 
-    def to_utc_datetime(local_dt, timezone=TIME_ZONE):
+    def is_utc_datetime(dt):
 
-    def to_local_datetime(utc_dt, timezone=TIME_ZONE):
+    def is_local_datetime(dt, local_tz=None):
+
+    def to_utc_datetime(dt, timezone=TIME_ZONE):
+
+    def to_local_datetime(dt, timezone=TIME_ZONE):
 
     def yesterday_utc_datetime(ms=True):
 
