@@ -125,6 +125,8 @@ class TimeConvert:
     def datetime_to_timestamp(self, dt, ms=False):
         # http://stackoverflow.com/questions/26161156/python-converting-string-to-timestamp-with-microseconds
         # ``dt - epoch`` will raise ``TypeError: can't subtract offset-naive and offset-aware datetimes``
+        # Total seconds from ``1970-01-01 00:00:00``(utc or local)
+        # Different from definition of timestamp(时间戳是指格林威治时间1970年01月01日00时00分00秒(北京时间1970年01月01日08时00分00秒)起至现在的总秒数)
         stamp = self.structime_to_timestamp(dt.timetuple())
         if not ms:
             return stamp
