@@ -116,14 +116,19 @@ class TimeConvert:
 
     # TIMESTAMP
 
-    def utc_timestamp(self, utc_dt=None):
-        return self.datetime_to_timestamp(self.__utc_datetime(utc_dt))
+    def utc_timestamp(self, utc_dt=None, ms=False):
+        return self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms)
 
-    def local_timestamp(self, local_dt=None):
-        return self.datetime_to_timestamp(self.__local_datetime(local_dt))
+    def local_timestamp(self, local_dt=None, ms=False):
+        return self.datetime_to_timestamp(self.__local_datetime(local_dt), ms)
 
-    def datetime_to_timestamp(self, dt):
-        return int(time.mktime(dt.timetuple()))
+    def datetime_to_timestamp(self, dt, ms=False):
+        # http://stackoverflow.com/questions/26161156/python-converting-string-to-timestamp-with-microseconds
+        # ``dt - epoch`` will raise ``TypeError: can't subtract offset-naive and offset-aware datetimes``
+        stamp = self.structime_to_timestamp(dt.timetuple())
+        if not ms:
+            return stamp
+        return stamp + dt.microsecond / 10.0 ** 6
 
     def structime_to_timestamp(self, structime):
         return int(time.mktime(structime))
@@ -150,19 +155,23 @@ class TimeConvert:
 
     # STRING ==> TIMESTAMP
 
-    def string_to_timestamp(self, string, format=None):
+    def string_to_timestamp(self, string, format=None, ms=False):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.structime_to_timestamp(time.strptime(string, format))
+        # ``time.strptime(string, format)`` == ``datetime.datetime().strptime(string, format).timetuple()``
+        # But direct use ``structime_to_timestamp`` will lost miscrosecond
+        # Such as ``datetime.datetime.strptime('2012-12-12 12:12:12 121212', '%Y-%m-%d %H:%M:%S %f').microsecond``
+        # return self.structime_to_timestamp(time.strptime(string, format))
+        return self.datetime_to_timestamp(datetime.datetime.strptime(string, format), ms)
 
-    def string_to_utc_timestamp(self, string, format=None):
+    def string_to_utc_timestamp(self, string, format=None, ms=False):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return self.datetime_to_timestamp(self.string_to_utc_datetime(string, format))
 
-    def string_to_local_timestamp(self, string, format=None):
+    def string_to_local_timestamp(self, string, format=None, ms=False):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None

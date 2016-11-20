@@ -83,11 +83,11 @@ Method
 
     # TIMESTAMP
 
-    def utc_timestamp(utc_dt=None):
+    def utc_timestamp(utc_dt=None, ms=False):
 
-    def local_timestamp(local_dt=None):
+    def local_timestamp(local_dt=None, ms=False):
 
-    def datetime_to_timestamp(dt):
+    def datetime_to_timestamp(dt, ms=False):
 
     # STRING ==> DATETIME
 
@@ -99,11 +99,11 @@ Method
 
     # STRING ==> TIMESTAMP
 
-    def string_to_timestamp(string, format=TIME_FORMAT):
+    def string_to_timestamp(string, format=TIME_FORMAT, ms=False):
 
-    def string_to_utc_timestamp(string, format=TIME_FORMAT):
+    def string_to_utc_timestamp(string, format=TIME_FORMAT, ms=False):
 
-    def string_to_local_timestamp(string, format=TIME_FORMAT):
+    def string_to_local_timestamp(string, format=TIME_FORMAT, ms=False):
 
     # TIME_DELTA
 
