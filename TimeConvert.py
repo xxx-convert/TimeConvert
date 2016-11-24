@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division
+
 import datetime
 import time
 
@@ -153,7 +155,7 @@ class TimeConvert:
         stamp = self.structime_to_timestamp(dt.timetuple())
         if not ms:
             return stamp
-        return stamp + dt.microsecond / 10.0 ** 6
+        return stamp + dt.microsecond / 10 ** 6
 
     def structime_to_timestamp(self, structime):
         return int(time.mktime(structime))
@@ -200,12 +202,12 @@ class TimeConvert:
     def timestamp_delta(self, stamp1, stamp2, interval=None):
         delta = stamp1 - stamp2
         abs_delta = abs(delta)
-        sign = abs_delta and delta / abs_delta
+        sign = abs_delta and delta // abs_delta
         delta_seconds = abs_delta % 60
-        delta_minutes = abs_delta / 60 % 60
-        delta_hours = abs_delta / 3600 % 24
-        delta_days = abs_delta / 86400
-        delta_weeks = abs_delta / 604800
+        delta_minutes = abs_delta // 60 % 60
+        delta_hours = abs_delta // 3600 % 24
+        delta_days = abs_delta // 86400
+        delta_weeks = abs_delta // 604800
         return {
             'sign': sign,
             'weeks': delta_weeks,
