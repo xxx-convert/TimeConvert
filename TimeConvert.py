@@ -83,7 +83,7 @@ class TimeConvert:
         # In [103]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
         # Out[103]: True
 
-        return str(dt.tzinfo) == str(local_tz)
+        return str(dt.tzinfo) == str(self.timezone(local_tz))
 
     def to_utc_datetime(self, dt, timezone=None):
         if self.is_utc_datetime(dt):
