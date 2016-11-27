@@ -13,13 +13,13 @@ setup(
     description='Time Convert for Humans™',
     long_description=open('README.rst').read(),
 
-    url='https://github.com/Brightcells/TimeConvert',
+    url='https://github.com/xxx-convert/TimeConvert',
 
     author='Hackathon',
     author_email='kimi.huang@brightcells.com',
 
     py_modules=['TimeConvert'],
-    install_requires=['pytz', ],
+    install_requires=['pytz'],
 
     classifiers=[
         "License :: OSI Approved :: BSD License",
