@@ -19,7 +19,7 @@ setup(
     author_email='kimi.huang@brightcells.com',
 
     py_modules=['TimeConvert'],
-    install_requires=['pytz'],
+    install_requires=['pytz', 'tzlocal'],
 
     classifiers=[
         "License :: OSI Approved :: BSD License",

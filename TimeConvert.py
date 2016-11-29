@@ -6,6 +6,7 @@ import datetime
 import time
 
 import pytz
+import tzlocal
 
 
 # In [40]: import pytz
@@ -14,7 +15,7 @@ import pytz
 
 class TimeConvert:
     def __init__(self, timezone=None, format=None):
-        self.TIME_ZONE = timezone or 'Asia/Shanghai'
+        self.TIME_ZONE = timezone or tzlocal.get_localzone().zone
         self.TIME_FORMAT = format or '%Y-%m-%d %H:%M:%S'
 
     def timezone(self, timezone=None):
