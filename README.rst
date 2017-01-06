@@ -141,7 +141,7 @@ Method
 
     def seconds_since_midnight(self, dt=None, utc=False):
 
-    # AWARE vs NAIVE
+    # AWARE vs. NAIVE
 
     def is_aware(value):
 
@@ -150,6 +150,12 @@ Method
     def make_aware(value, timezone=TIME_ZONE):
 
     def make_naive(value, timezone=TIME_ZONE):
+
+    # PAST vs. FUTURE
+
+    def is_past_time(self, value, base_dt=None, format=None, utc=True):
+
+    def is_future_time(self, value, base_dt=None, format=None, utc=True):
 
     # OTHER
 

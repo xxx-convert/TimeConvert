@@ -8,6 +8,8 @@ import time
 import pytz
 import tzlocal
 
+from .compat import basestring
+
 
 # In [40]: import pytz
 # In [41]: pytz.all_timezones
@@ -267,7 +269,7 @@ class TimeConvert:
     def seconds_since_midnight(self, dt=None, utc=False):
         return self.utc_seconds_since_midnight(dt) if utc else self.local_seconds_since_midnight(dt)
 
-    # AWARE vs NAIVE
+    # AWARE vs. NAIVE
 
     # By design, these four functions don't perform any checks on their arguments.
     # The caller should ensure that they don't receive an invalid value like None.
@@ -315,6 +317,47 @@ class TimeConvert:
             # This method is available for pytz time zones.
             value = timezone.normalize(value)
         return value.replace(tzinfo=None)
+
+    # PAST vs. FUTURE
+
+    def is_past_time(self, value, base_dt=None, format=None, utc=True):
+        base_dt = base_dt or self.utc_datetime()
+
+        if not value:
+            return None
+
+        if isinstance(value, datetime.datetime):
+            return (value if utc else self.to_local_datetime(value)) < base_dt
+
+        if isinstance(value, basestring):
+            utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(value, format=format)
+            return utc_dt and utc_dt < base_dt
+
+        if isinstance(value, int):
+            stamp = self.datetime_to_timestamp(base_dt if utc else self.to_local_datetime(base_dt), ms=True)
+            return value < stamp
+
+        return None
+
+    def is_future_time(self, value, base_dt=None, format=None, utc=True):
+        base_dt = base_dt or self.utc_datetime()
+
+        if not value:
+            return None
+
+        if isinstance(value, datetime.datetime):
+            return (value if utc else self.to_local_datetime(value)) > base_dt
+
+        if isinstance(value, basestring):
+            utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(
+                value, format=format)
+            return utc_dt and utc_dt > base_dt
+
+        if isinstance(value, int):
+            stamp = self.datetime_to_timestamp(base_dt if utc else self.to_local_datetime(base_dt), ms=True)
+            return value > stamp
+
+        return None
 
     # OTHER
 

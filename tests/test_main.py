@@ -95,3 +95,37 @@ class TestTimeConvertCommands(object):
 
     def test_several_time_coming(self):
         pass
+
+    # PAST vs. FUTURE
+
+    def test_is_past_time(self):
+        assert not tc.is_past_time('')
+        # Datetime
+        assert tc.is_past_time(tc.utc_datetime())
+        assert tc.is_past_time(tc.local_datetime(), utc=False)
+        # String
+        assert tc.is_past_time(tc.utc_string())
+        assert tc.is_past_time(tc.local_string(), utc=False)
+        assert tc.is_past_time(tc.utc_string(format='%Y-%m-%dT%H:%M:%SZ'), format='%Y-%m-%dT%H:%M:%SZ')
+        # Stamp
+        assert tc.is_past_time(tc.utc_timestamp())
+        assert tc.is_past_time(tc.local_timestamp(), utc=False)
+        # Base_dt
+        assert not tc.is_past_time(tc.utc_datetime(), base_dt=tc.several_time_ago(hours=1))
+        assert tc.is_past_time(tc.several_time_ago(hours=2), base_dt=tc.several_time_ago(hours=1))
+
+    def test_is_future_time(self):
+        assert not tc.is_future_time('')
+        # Datetime
+        assert tc.is_future_time(tc.utc_datetime(), base_dt=tc.several_time_ago(hours=1))
+        assert tc.is_future_time(tc.local_datetime(), base_dt=tc.several_time_ago(hours=1), utc=False)
+        # String
+        assert tc.is_future_time(tc.utc_string(), base_dt=tc.several_time_ago(hours=1))
+        assert tc.is_future_time(tc.local_string(), base_dt=tc.several_time_ago(hours=1), utc=False)
+        assert tc.is_future_time(tc.utc_string(format='%Y-%m-%dT%H:%M:%SZ'), base_dt=tc.several_time_ago(hours=1), format='%Y-%m-%dT%H:%M:%SZ')
+        # Stamp
+        assert tc.is_future_time(tc.utc_timestamp(), base_dt=tc.several_time_ago(hours=1))
+        assert tc.is_future_time(tc.local_timestamp(), base_dt=tc.several_time_ago(hours=1), utc=False)
+        # Base_dt
+        assert tc.is_future_time(tc.utc_datetime(), base_dt=tc.several_time_ago(hours=1))
+        assert not tc.is_future_time(tc.several_time_ago(hours=2), base_dt=tc.several_time_ago(hours=1))
