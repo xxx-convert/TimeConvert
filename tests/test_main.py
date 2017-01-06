@@ -23,6 +23,7 @@ class TestTimeConvertCommands(object):
         tc.__init__(format=timeformat)
         assert tc.TIME_FORMAT == timeformat
         assert tc.format() == timeformat
+        tc.__init__(format=tc.BASE_TIME_FORMAT)
 
     # OFFSET
 
@@ -32,8 +33,8 @@ class TestTimeConvertCommands(object):
     # VALIDATE
 
     def test_validate_string(self):
-        assert tc.validate_string('1988-06-15 12:12:12', '%Y-%m-%d %H:%M:%S')
-        assert not tc.validate_string('19880615121212', '%Y-%m-%d %H:%M:%S')
+        assert tc.validate_string('1988-06-15 08:08:08', '%Y-%m-%d %H:%M:%S')
+        assert not tc.validate_string('19880615080808', '%Y-%m-%d %H:%M:%S')
 
     # REPLACE
 
@@ -73,28 +74,71 @@ class TestTimeConvertCommands(object):
         assert tc.is_local_datetime(tc.to_local_datetime(tc.local_datetime()))
 
     def test_yesterday_utc_datetime(self):
-        pass
+        assert isinstance(tc.yesterday_utc_datetime(), datetime.datetime)
 
     def test_tomorrow_utc_datetime(self):
-        pass
+        assert isinstance(tc.tomorrow_utc_datetime(), datetime.datetime)
 
     def test_yesterday_local_datetime(self):
-        pass
+        assert isinstance(tc.yesterday_local_datetime(), datetime.datetime)
 
     def test_tomorrow_local_datetime(self):
-        pass
+        assert isinstance(tc.tomorrow_local_datetime(), datetime.datetime)
 
     def test_several_days_ago(self):
-        pass
+        assert isinstance(tc.several_days_ago(days=1), datetime.datetime)
 
     def test_several_days_coming(self):
-        pass
+        assert isinstance(tc.several_days_coming(days=1), datetime.datetime)
 
     def test_several_time_ago(self):
-        pass
+        assert isinstance(tc.several_time_ago(days=1), datetime.datetime)
 
     def test_several_time_coming(self):
-        pass
+        assert isinstance(tc.several_time_coming(days=1), datetime.datetime)
+
+    # STRING
+
+    def test_utc_string(self):
+        assert tc.validate_string(tc.utc_string())
+
+    def test_local_string(self):
+        assert tc.validate_string(tc.local_string())
+
+    def test_datetime_to_string(self):
+        assert tc.validate_string(tc.datetime_to_string(tc.utc_datetime()))
+
+    # TIMESTAMP
+
+    def test_utc_timestamp(self):
+        assert isinstance(tc.utc_timestamp(), int)
+        assert isinstance(tc.utc_timestamp(ms=True), float)
+
+    def test_local_timestamp(self):
+        assert isinstance(tc.local_timestamp(), int)
+        assert isinstance(tc.local_timestamp(ms=True), float)
+
+    def test_datetime_to_timestamp(self):
+        dt = tc.utc_datetime()
+        assert isinstance(tc.datetime_to_timestamp(dt=dt), int)
+        assert isinstance(tc.datetime_to_timestamp(dt=dt, ms=True), float)
+
+    # STRING ==> DATETIME
+
+    def test_string_to_datetime(self):
+        assert tc.is_local_datetime(tc.string_to_datetime('1988-06-15 08:08:08'), local_tz=-1)
+
+    def test_string_to_utc_datetime(self):
+        assert tc.is_utc_datetime(tc.string_to_utc_datetime('1988-06-15 08:08:08'))
+
+    def test_string_to_local_datetime(self):
+        assert tc.is_local_datetime(tc.string_to_local_datetime('1988-06-15 08:08:08'))
+
+    def test_utc_string_to_utc_datetime(self):
+        assert tc.is_utc_datetime(tc.utc_string_to_utc_datetime('1988-06-15 08:08:08'))
+
+    def test_utc_string_to_local_datetime(self):
+        assert tc.is_local_datetime(tc.utc_string_to_local_datetime('1988-06-15 08:08:08'))
 
     # PAST vs. FUTURE
 
