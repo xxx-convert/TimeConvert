@@ -41,7 +41,7 @@ Method
 
     # VALIDATE
 
-    def validate_string(string, format=TIME_FORMAT):
+    def validate_string(string, format=None):
 
     # REPLACE
 
@@ -57,9 +57,9 @@ Method
 
     def is_local_datetime(dt, local_tz=None):
 
-    def to_utc_datetime(dt, timezone=TIME_ZONE):
+    def to_utc_datetime(dt, timezone=None):
 
-    def to_local_datetime(dt, timezone=TIME_ZONE):
+    def to_local_datetime(dt, timezone=None):
 
     def yesterday_utc_datetime(ms=True):
 
@@ -79,11 +79,11 @@ Method
 
     # STRING
 
-    def utc_string(utc_dt=None, format=TIME_FORMAT):
+    def utc_string(utc_dt=None, format=None):
 
-    def local_string(local_dt=None, format=TIME_FORMAT):
+    def local_string(local_dt=None, format=None):
 
-    def datetime_to_string(dt, format=TIME_FORMAT):
+    def datetime_to_string(dt, format=None):
 
     # TIMESTAMP
 
@@ -95,19 +95,23 @@ Method
 
     # STRING ==> DATETIME
 
-    def string_to_utc_datetime(string, format=TIME_FORMAT):
+    def string_to_datetime(self, string, format=None):
 
-    def string_to_local_datetime(string, format=TIME_FORMAT):
+    def string_to_utc_datetime(string, format=None):
 
-    def utc_string_to_utc_datetime(self, utc_string, format=TIME_FORMAT):
+    def string_to_local_datetime(string, format=None):
+
+    def utc_string_to_utc_datetime(self, utc_string, format=None):
+
+    def utc_string_to_local_datetime(self, utc_string, format=None):
 
     # STRING ==> TIMESTAMP
 
-    def string_to_timestamp(string, format=TIME_FORMAT, ms=False):
+    def string_to_timestamp(string, format=None, ms=False):
 
-    def string_to_utc_timestamp(string, format=TIME_FORMAT, ms=False):
+    def string_to_utc_timestamp(string, format=None, ms=False):
 
-    def string_to_local_timestamp(string, format=TIME_FORMAT, ms=False):
+    def string_to_local_timestamp(string, format=None, ms=False):
 
     # TIME_DELTA
 
@@ -115,7 +119,7 @@ Method
 
     def datetime_delta(dt1, dt2, interval=None):
 
-    def string_delta(string1, string2, interval=None, format=TIME_FORMAT, format1='', format2=''):
+    def string_delta(string1, string2, interval=None, format=None, format1=None, format2=None):
 
     PS: interval(seconds) —— Time1 - Time2 >= interval ?
 
@@ -125,7 +129,7 @@ Method
 
     def datetime_countdown(dt):
 
-    def string_countdown(string, format=TIME_FORMAT):
+    def string_countdown(string, format=None):
 
     # MIDNIGHT
 
@@ -147,9 +151,9 @@ Method
 
     def is_naive(value):
 
-    def make_aware(value, timezone=TIME_ZONE):
+    def make_aware(value, timezone=None):
 
-    def make_naive(value, timezone=TIME_ZONE):
+    def make_naive(value, timezone=None):
 
     # PAST vs. FUTURE
 
