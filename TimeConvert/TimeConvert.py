@@ -17,8 +17,10 @@ from .compat import basestring
 
 class TimeConvert:
     def __init__(self, timezone=None, format=None):
-        self.TIME_ZONE = timezone or tzlocal.get_localzone().zone
-        self.TIME_FORMAT = format or '%Y-%m-%d %H:%M:%S'
+        self.BASE_TIME_ZONE = tzlocal.get_localzone().zone
+        self.BASE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.TIME_ZONE = timezone or self.BASE_TIME_ZONE
+        self.TIME_FORMAT = format or self.BASE_TIME_FORMAT
 
     def timezone(self, timezone=None):
         return timezone or self.TIME_ZONE
@@ -74,6 +76,13 @@ class TimeConvert:
         return dt.tzinfo == pytz.utc
 
     def is_local_datetime(self, dt, local_tz=None):
+        """
+        Check whether local datetime or not.
+
+        ``local_tz`` indicates local tzinfo.
+            ``local_dt`` is ``None``: get_localzone from system.
+            ``local_dt`` is ``-1``: local tzinfo is ``None``.
+        """
         # In [100]: pytz.timezone('Asia/Shanghai')
         # Out[100]: <DstTzInfo 'Asia/Shanghai' LMT+8:06:00 STD>
 
@@ -86,7 +95,7 @@ class TimeConvert:
         # In [103]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
         # Out[103]: True
 
-        return str(dt.tzinfo) == str(self.timezone(local_tz))
+        return str(dt.tzinfo) == str(None if local_tz == -1 else self.timezone(local_tz))
 
     def to_utc_datetime(self, dt, timezone=None):
         if self.is_utc_datetime(dt):
@@ -165,23 +174,35 @@ class TimeConvert:
 
     # STRING ==> DATETIME
 
-    def string_to_utc_datetime(self, string, format=None):
-        format = self.format(format)
-        if not self.validate_string(string, format):
-            return None
-        return self.to_utc_datetime(self.string_to_local_datetime(string, format))
-
-    def string_to_local_datetime(self, string, format=None):
+    def string_to_datetime(self, string, format=None):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
         return datetime.datetime.strptime(string, format)
 
+    def string_to_utc_datetime(self, string, format=None):
+        format = self.format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.to_utc_datetime(self.string_to_datetime(string, format))
+
+    def string_to_local_datetime(self, string, format=None):
+        format = self.format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.to_local_datetime(self.string_to_datetime(string, format)) - self.offset()
+
     def utc_string_to_utc_datetime(self, utc_string, format=None):
         format = self.format(format)
         if not self.validate_string(utc_string, format):
             return None
-        return self.to_utc_datetime(self.string_to_local_datetime(utc_string, format)) + self.offset()
+        return self.to_utc_datetime(self.string_to_datetime(utc_string, format)) + self.offset()
+
+    def utc_string_to_local_datetime(self, utc_string, format=None):
+        format = self.format(format)
+        if not self.validate_string(utc_string, format):
+            return None
+        return self.to_local_datetime(self.string_to_datetime(utc_string, format))
 
     # STRING ==> TIMESTAMP
 
@@ -227,7 +248,7 @@ class TimeConvert:
     def datetime_delta(self, dt1, dt2, interval=None):
         return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2), interval)
 
-    def string_delta(self, string1, string2, interval=None, format=None, format1='', format2=''):
+    def string_delta(self, string1, string2, interval=None, format=None, format1=None, format2=None):
         format = self.format(format)
         if (not self.validate_string(string1, format1 or format)) or (not self.validate_string(string2, format2 or format)):
             return None
