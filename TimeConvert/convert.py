@@ -168,7 +168,7 @@ class TimeConvert:
     def utc_timestamp(self, utc_dt=None, ms=False, micro=False, milli=False):
         return self.__micro_or_milli(self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms=ms), micro=micro, milli=milli)
 
-    def local_timestamp(self, local_dt=None, ms=False):
+    def local_timestamp(self, local_dt=None, ms=False, micro=False, milli=False):
         return self.__micro_or_milli(self.datetime_to_timestamp(self.__local_datetime(local_dt), ms=ms), micro=micro, milli=milli)
 
     def datetime_to_timestamp(self, dt, ms=False):
