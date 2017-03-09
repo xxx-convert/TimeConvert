@@ -41,65 +41,69 @@ Method
 
     # VALIDATE
 
-    def validate_string(string, format=None):
+    def validate_string(self, string, format=None):
 
     # REPLACE
 
-    def remove_microsecond(self, dt):
+    def remove_microsecond(self, self, dt):
 
     # DATETIME
 
-    def utc_datetime(ms=True):
+    def utc_datetime(self, ms=True):
 
-    def local_datetime(ms=True, timezone=None):
+    def local_datetime(self, ms=True, timezone=None):
 
-    def is_utc_datetime(dt):
+    def is_utc_datetime(self, dt):
 
-    def is_local_datetime(dt, local_tz=None):
+    def is_local_datetime(self, dt, local_tz=None):
 
-    def to_utc_datetime(dt, timezone=None):
+    def to_utc_datetime(self, dt, timezone=None):
 
-    def to_local_datetime(dt, timezone=None):
+    def to_local_datetime(self, dt, timezone=None):
 
-    def yesterday_utc_datetime(ms=True):
+    def yesterday_utc_datetime(self, ms=True):
 
-    def tomorrow_utc_datetime(ms=True):
+    def tomorrow_utc_datetime(self, ms=True):
 
-    def yesterday_local_datetime(ms=True, timezone=None):
+    def yesterday_local_datetime(self, ms=True, timezone=None):
 
-    def tomorrow_local_datetime(ms=True, timezone=None):
+    def tomorrow_local_datetime(self, ms=True, timezone=None):
 
-    def several_days_ago(dt=None, utc=True, days=0):
+    def several_days_ago(self, dt=None, utc=True, days=0):
 
-    def several_days_coming(dt=None, utc=True, days=0):
+    def several_days_coming(self, dt=None, utc=True, days=0):
 
-    def several_time_ago(dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+    def several_time_ago(self, dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
 
-    def several_time_coming(dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+    def several_time_coming(self, dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
 
     # STRING
 
-    def utc_string(utc_dt=None, format=None):
+    def utc_string(self, utc_dt=None, format=None):
 
-    def local_string(local_dt=None, format=None):
+    def local_string(self, local_dt=None, format=None):
 
-    def datetime_to_string(dt, format=None):
+    def datetime_to_string(self, dt, format=None):
 
     # TIMESTAMP
 
-    def utc_timestamp(utc_dt=None, ms=False):
+    def utc_timestamp(self, utc_dt=None, ms=False):
 
-    def local_timestamp(local_dt=None, ms=False):
+    def local_timestamp(self, local_dt=None, ms=False):
 
-    def datetime_to_timestamp(dt, ms=False):
+    def datetime_to_timestamp(self, dt, ms=False):
+
+    def seconds_to_microseconds(self, s):
+
+    def seconds_to_milliseconds(self, s):
 
     # STRING ==> DATETIME
 
     def string_to_datetime(self, string, format=None):
 
-    def string_to_utc_datetime(string, format=None):
+    def string_to_utc_datetime(self, string, format=None):
 
-    def string_to_local_datetime(string, format=None):
+    def string_to_local_datetime(self, string, format=None):
 
     def utc_string_to_utc_datetime(self, utc_string, format=None):
 
@@ -107,29 +111,29 @@ Method
 
     # STRING ==> TIMESTAMP
 
-    def string_to_timestamp(string, format=None, ms=False):
+    def string_to_timestamp(self, string, format=None, ms=False):
 
-    def string_to_utc_timestamp(string, format=None, ms=False):
+    def string_to_utc_timestamp(self, string, format=None, ms=False):
 
-    def string_to_local_timestamp(string, format=None, ms=False):
+    def string_to_local_timestamp(self, string, format=None, ms=False):
 
     # TIME_DELTA
 
-    def timestamp_delta(stamp1, stamp2, interval=None):
+    def timestamp_delta(self, stamp1, stamp2, interval=None):
 
-    def datetime_delta(dt1, dt2, interval=None):
+    def datetime_delta(self, dt1, dt2, interval=None):
 
-    def string_delta(string1, string2, interval=None, format=None, format1=None, format2=None):
+    def string_delta(self, string1, string2, interval=None, format=None, format1=None, format2=None):
 
     PS: interval(seconds) —— Time1 - Time2 >= interval ?
 
     # TIME_COUNT_DOWN
 
-    def timestamp_countdown(stamp):
+    def timestamp_countdown(self, stamp):
 
-    def datetime_countdown(dt):
+    def datetime_countdown(self, dt):
 
-    def string_countdown(string, format=None):
+    def string_countdown(self, string, format=None):
 
     # MIDNIGHT
 
@@ -147,13 +151,13 @@ Method
 
     # AWARE vs. NAIVE
 
-    def is_aware(value):
+    def is_aware(self, value):
 
-    def is_naive(value):
+    def is_naive(self, value):
 
-    def make_aware(value, timezone=None):
+    def make_aware(self, value, timezone=None):
 
-    def make_naive(value, timezone=None):
+    def make_naive(self, value, timezone=None):
 
     # PAST vs. FUTURE
 
@@ -163,4 +167,4 @@ Method
 
     # OTHER
 
-    def total_seconds(td):  # timedelta
+    def total_seconds(self, td):  # timedelta

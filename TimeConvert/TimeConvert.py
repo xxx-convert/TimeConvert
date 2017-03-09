@@ -21,6 +21,8 @@ class TimeConvert:
         self.BASE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.TIME_ZONE = timezone or self.BASE_TIME_ZONE
         self.TIME_FORMAT = format or self.BASE_TIME_FORMAT
+        self.SECOND_MILLISECOND = 10 ** 3
+        self.SECOND_MICROSECOND = 10 ** 6
 
     def timezone(self, timezone=None):
         return timezone or self.TIME_ZONE
@@ -41,6 +43,9 @@ class TimeConvert:
 
     def __remove_ms_or_not(self, dt=None, ms=True):
         return dt if ms else self.remove_microsecond(dt)
+
+    def __seconds_to_other(self, s, base=0):
+        return int(s * (base or self.SECOND_MICROSECOND))
 
     # OFFSET
 
@@ -167,10 +172,16 @@ class TimeConvert:
         stamp = self.structime_to_timestamp(dt.timetuple())
         if not ms:
             return stamp
-        return stamp + dt.microsecond / 10 ** 6
+        return stamp + dt.microsecond / self.SECOND_MICROSECOND
 
     def structime_to_timestamp(self, structime):
         return int(time.mktime(structime))
+
+    def seconds_to_microseconds(self, s):
+        return self.__seconds_to_other(s, base=self.SECOND_MICROSECOND)
+
+    def seconds_to_milliseconds(self, s):
+        return self.__seconds_to_other(s, base=self.SECOND_MILLISECOND)
 
     # STRING ==> DATETIME
 
@@ -384,7 +395,7 @@ class TimeConvert:
 
     def total_seconds(self, td):
         """Total seconds in the duration."""
-        return ((td.days * 86400 + td.seconds) * 10 ** 6 + td.microseconds) / 10 ** 6
+        return ((td.days * 86400 + td.seconds) * self.SECOND_MICROSECOND + td.microseconds) / self.SECOND_MICROSECOND
 
 
 TimeConvert = TimeConvert()
