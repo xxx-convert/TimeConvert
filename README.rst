@@ -87,9 +87,9 @@ Method
 
     # TIMESTAMP
 
-    def utc_timestamp(self, utc_dt=None, ms=False):
+    def utc_timestamp(self, utc_dt=None, ms=False, micro=False, milli=False):
 
-    def local_timestamp(self, local_dt=None, ms=False):
+    def local_timestamp(self, local_dt=None, ms=False, micro=False, milli=False):
 
     def datetime_to_timestamp(self, dt, ms=False):
 

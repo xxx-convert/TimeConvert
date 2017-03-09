@@ -158,11 +158,18 @@ class TimeConvert:
 
     # TIMESTAMP
 
-    def utc_timestamp(self, utc_dt=None, ms=False):
-        return self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms=ms)
+    def __micro_or_milli(self, s, micro=False, milli=False):
+        if micro:
+            return self.seconds_to_microseconds(s)
+        if milli:
+            return self.seconds_to_milliseconds(s)
+        return s
+
+    def utc_timestamp(self, utc_dt=None, ms=False, micro=False, milli=False):
+        return self.__micro_or_milli(self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms=ms), micro=micro, milli=milli)
 
     def local_timestamp(self, local_dt=None, ms=False):
-        return self.datetime_to_timestamp(self.__local_datetime(local_dt), ms=ms)
+        return self.__micro_or_milli(self.datetime_to_timestamp(self.__local_datetime(local_dt), ms=ms), micro=micro, milli=milli)
 
     def datetime_to_timestamp(self, dt, ms=False):
         # http://stackoverflow.com/questions/26161156/python-converting-string-to-timestamp-with-microseconds
