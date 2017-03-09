@@ -18,7 +18,8 @@ setup(
     author='Hackathon',
     author_email='kimi.huang@brightcells.com',
 
-    py_modules=['TimeConvert'],
+    packages=['TimeConvert'],
+    py_modules=[],
     install_requires=['pytz', 'tzlocal'],
 
     classifiers=[
