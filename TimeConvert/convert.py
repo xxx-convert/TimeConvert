@@ -7,6 +7,7 @@ import time
 
 import pytz
 import tzlocal
+from dateutil.relativedelta import relativedelta
 
 from .compat import basestring
 
@@ -139,11 +140,11 @@ class TimeConvert:
     def several_days_coming(self, dt=None, utc=True, days=0):
         return self.__datetime(dt, utc) + datetime.timedelta(days=days)
 
-    def several_time_ago(self, dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.__datetime(dt, utc) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+    def several_time_ago(self, dt=None, utc=True, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.__datetime(dt, utc) - relativedelta(years=years, months=months) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
-    def several_time_coming(self, dt=None, utc=True, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.__datetime(dt, utc) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+    def several_time_coming(self, dt=None, utc=True, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.__datetime(dt, utc) + relativedelta(years=years, months=months) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     # STRING
 
