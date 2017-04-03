@@ -12,10 +12,6 @@ from dateutil.relativedelta import relativedelta
 from .compat import basestring
 
 
-# In [40]: import pytz
-# In [41]: pytz.all_timezones
-
-
 class TimeConvert:
     def __init__(self, timezone=None, format=None):
         self.BASE_TIME_ZONE = tzlocal.get_localzone().zone
@@ -26,6 +22,8 @@ class TimeConvert:
         self.SECOND_MICROSECOND = 10 ** 6
 
     def timezone(self, timezone=None):
+        # In [1]: import pytz
+        # In [2]: pytz.all_timezones
         return timezone or self.TIME_ZONE
 
     def format(self, format=None):
@@ -76,6 +74,19 @@ class TimeConvert:
         return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms=ms)
 
     def local_datetime(self, ms=True, timezone=None):
+        # In[1]: import time
+        #
+        # In[2]: time.localtime()
+        # Out[2]: time.struct_time(tm_year=2017, tm_mon=4, tm_mday=3, tm_hour=23, tm_min=19, tm_sec=39, tm_wday=0, tm_yday=93, tm_isdst=0)
+        #
+        # In[3]: time.localtime(time.time())
+        # Out[3]: time.struct_time(tm_year=2017, tm_mon=4, tm_mday=3, tm_hour=23, tm_min=19, tm_sec=40, tm_wday=0, tm_yday=93, tm_isdst=0)
+        #
+        # In[4]: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        # Out[4]: '2017-04-03 23:19:57'
+        #
+        # In[5]: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        # Out[5]: '2017-04-03 23:20:00'
         return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def is_utc_datetime(self, dt):
@@ -89,17 +100,17 @@ class TimeConvert:
             ``local_dt`` is ``None``: get_localzone from system.
             ``local_dt`` is ``-1``: local tzinfo is ``None``.
         """
-        # In [100]: pytz.timezone('Asia/Shanghai')
-        # Out[100]: <DstTzInfo 'Asia/Shanghai' LMT+8:06:00 STD>
+        # In [1]: pytz.timezone('Asia/Shanghai')
+        # Out[1]: <DstTzInfo 'Asia/Shanghai' LMT+8:06:00 STD>
 
-        # In [101]: tc.local_datetime().tzinfo
-        # Out[101]: <DstTzInfo 'Asia/Shanghai' CST+8:00:00 STD>
+        # In [2]: tc.local_datetime().tzinfo
+        # Out[2]: <DstTzInfo 'Asia/Shanghai' CST+8:00:00 STD>
 
-        # In [102]: pytz.timezone('Asia/Shanghai') == tc.local_datetime().tzinfo
-        # Out[102]: False
+        # In [3]: pytz.timezone('Asia/Shanghai') == tc.local_datetime().tzinfo
+        # Out[3]: False
 
-        # In [103]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
-        # Out[103]: True
+        # In [4]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
+        # Out[4]: True
 
         return str(dt.tzinfo) == str(None if local_tz == -1 else self.timezone(local_tz))
 
