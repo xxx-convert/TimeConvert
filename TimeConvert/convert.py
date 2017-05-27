@@ -31,11 +31,11 @@ class TimeConvert:
 
     # PRIVATE
 
-    def __utc_datetime(self, utc_dt=None):
-        return utc_dt or self.utc_datetime()
+    def __utc_datetime(self, utc_dt=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.several_time_coming(dt=utc_dt or self.utc_datetime(), utc=True, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
-    def __local_datetime(self, local_dt=None):
-        return local_dt or self.local_datetime()
+    def __local_datetime(self, local_dt=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.several_time_coming(dt=local_dt or self.local_datetime(), utc=False, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     def __datetime(self, dt=None, utc=True, timezone=None):
         return dt or (self.utc_datetime() if utc else self.local_datetime(timezone=timezone))
@@ -159,11 +159,11 @@ class TimeConvert:
 
     # STRING
 
-    def utc_string(self, utc_dt=None, format=None):
-        return self.datetime_to_string(self.__utc_datetime(utc_dt), self.format(format))
+    def utc_string(self, utc_dt=None, format=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_string(self.__utc_datetime(utc_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
 
-    def local_string(self, local_dt=None, format=None):
-        return self.datetime_to_string(self.__local_datetime(local_dt), self.format(format))
+    def local_string(self, local_dt=None, format=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_string(self.__local_datetime(local_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
 
     def datetime_to_string(self, dt, format=None):
         return dt.strftime(self.format(format))
