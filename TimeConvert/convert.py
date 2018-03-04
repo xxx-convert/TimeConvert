@@ -2,6 +2,7 @@
 
 from __future__ import division
 
+import calendar
 import datetime
 import time
 
@@ -409,6 +410,22 @@ class TimeConvert:
             return value > stamp
 
         return None
+
+    # YEAR/MONTH/DAY
+    def year(self, dt=None, utc=False, timezone=None, idx=0):
+        return self.__datetime(dt=self.several_time_coming(dt=dt, utc=utc, timezone=timezone, years=idx), utc=utc).year
+
+    def month(self, dt=None, utc=False, timezone=None, idx=0):
+        return self.__datetime(dt=self.several_time_coming(dt=dt, utc=utc, timezone=timezone, months=idx), utc=utc).month
+
+    def day(self, dt=None, utc=False, timezone=None, idx=0):
+        return self.__datetime(dt=self.several_time_coming(dt=dt, utc=utc, timezone=timezone, days=idx), utc=utc).day
+
+    def days_of_year(self, year=None, dt=None, idx=0):
+        return 366 if calendar.isleap(year or self.year(dt, idx=idx)) else 365
+
+    def days_of_month(self, year=None, month=None, dt=None, idx=0):
+        return calendar.monthrange(year=(year or self.year(dt, idx=idx)), month=(month or self.month(dt, idx=idx)))[-1]
 
     # OTHER
 
