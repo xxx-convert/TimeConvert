@@ -304,22 +304,25 @@ class TimeConvert:
     def utc_datetime_midnight(self, utc_dt=None):
         return (self.__utc_datetime(utc_dt)).replace(hour=0, minute=0, second=0, microsecond=0)
 
-    def utc_seconds_since_midnight(self, utc_dt=None):
+    def utc_seconds_since_midnight(self, utc_dt=None, seconds_cast_func=float):
         utc_dt = self.__utc_datetime(utc_dt)
-        return self.total_seconds(utc_dt - self.utc_datetime_midnight(utc_dt))
+        return seconds_cast_func(self.total_seconds(utc_dt - self.utc_datetime_midnight(utc_dt)))
 
     def local_datetime_midnight(self, local_dt=None):
         return (self.__local_datetime(local_dt)).replace(hour=0, minute=0, second=0, microsecond=0)
 
-    def local_seconds_since_midnight(self, local_dt=None):
+    def local_seconds_since_midnight(self, local_dt=None, seconds_cast_func=float):
         local_dt = self.__local_datetime(local_dt)
-        return self.total_seconds(local_dt - self.local_datetime_midnight(local_dt))
+        return seconds_cast_func(self.total_seconds(local_dt - self.local_datetime_midnight(local_dt)))
 
     def datetime_midnight(self, dt=None, utc=False):
         return self.utc_datetime_midnight(dt) if utc else self.local_datetime_midnight(dt)
 
-    def seconds_since_midnight(self, dt=None, utc=False):
-        return self.utc_seconds_since_midnight(dt) if utc else self.local_seconds_since_midnight(dt)
+    def seconds_since_midnight(self, dt=None, utc=False, seconds_cast_func=float):
+        return seconds_cast_func(self.utc_seconds_since_midnight(dt) if utc else self.local_seconds_since_midnight(dt))
+
+    def seconds_until_midnight(self, dt=None, utc=False, seconds_cast_func=float):
+        return seconds_cast_func(86400 - self.seconds_since_midnight(dt=dt, utc=utc))
 
     # AWARE vs. NAIVE
 
