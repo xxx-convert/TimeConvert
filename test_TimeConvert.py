@@ -70,11 +70,11 @@ def main():
 
     print(">> utc_string(utc_dt=None, format=TIME_FORMAT)")
     print("    Exec: {}".format("tc.utc_string(utc_dt=None, format=TIME_FORMAT)"))
-    print("    Result: {}".format(tc.utc_string(utc_dt=None, format=TIME_FORMAT)))
+    print("    Result: {}".format(tc.utc_string(dt=None, format=TIME_FORMAT)))
     print()
     print(">> local_string(local_dt=None, format=TIME_FORMAT)")
     print("    Exec: {}".format("tc.local_string(local_dt=None, format=TIME_FORMAT)"))
-    print("    Result: {}".format(tc.local_string(local_dt=None, format=TIME_FORMAT)))
+    print("    Result: {}".format(tc.local_string(dt=None, format=TIME_FORMAT)))
     print()
     print(">> datetime_to_string(dt, format=TIME_FORMAT)")
     print("    Exec: {}".format("tc.datetime_to_string(datetime.datetime.now(), format=TIME_FORMAT)"))
