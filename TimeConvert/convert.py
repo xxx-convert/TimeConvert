@@ -33,13 +33,13 @@ class TimeConvert:
     # PRIVATE
 
     def __utc_datetime(self, utc_dt=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.several_time_coming(dt=utc_dt or self.utc_datetime(), utc=True, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+        return self.several_time_coming(dt=utc_dt or self.basic_utc_datetime(), utc=True, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     def __local_datetime(self, local_dt=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.several_time_coming(dt=local_dt or self.local_datetime(), utc=False, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+        return self.several_time_coming(dt=local_dt or self.basic_local_datetime(), utc=False, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     def __datetime(self, dt=None, utc=True, timezone=None):
-        return dt or (self.utc_datetime() if utc else self.local_datetime(timezone=timezone))
+        return dt or (self.basic_utc_datetime() if utc else self.basic_local_datetime(timezone=timezone))
 
     def __remove_ms_or_not(self, dt=None, ms=True):
         return dt if ms else self.remove_microsecond(dt)
@@ -69,12 +69,12 @@ class TimeConvert:
     def remove_microsecond(self, dt):
         return dt.replace(microsecond=0) if hasattr(dt, 'replace') else dt
 
-    # DATETIME
+    # BASIC DATETIME
 
-    def utc_datetime(self, ms=True):
+    def basic_utc_datetime(self, ms=True):
         return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms=ms)
 
-    def local_datetime(self, ms=True, timezone=None):
+    def basic_local_datetime(self, ms=True, timezone=None):
         # In[1]: import time
         #
         # In[2]: time.localtime()
@@ -88,7 +88,7 @@ class TimeConvert:
         #
         # In[5]: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         # Out[5]: '2017-04-03 23:20:00'
-        return self.__remove_ms_or_not(self.to_local_datetime(self.utc_datetime(), self.timezone(timezone)), ms=ms)
+        return self.__remove_ms_or_not(self.to_local_datetime(self.basic_utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def is_utc_datetime(self, dt):
         return dt.tzinfo == pytz.utc
@@ -134,6 +134,8 @@ class TimeConvert:
         utc_dt = dt.replace(tzinfo=pytz.utc)
         return utc_dt.astimezone(local_tz)
 
+    # DATETIME
+
     def yesterday_utc_datetime(self, ms=True):
         return self.__remove_ms_or_not(self.several_days_ago(days=1), ms=ms)
 
@@ -146,28 +148,58 @@ class TimeConvert:
     def tomorrow_local_datetime(self, ms=True, timezone=None):
         return self.__remove_ms_or_not(self.several_days_coming(utc=False, timezone=timezone, days=1), ms=ms)
 
-    def several_days_ago(self, dt=None, utc=True, timezone=None, days=0):
-        return self.__datetime(dt, utc, timezone=timezone) - datetime.timedelta(days=days)
+    def several_days_ago(self, dt=None, utc=True, ms=True, timezone=None, days=0):
+        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) - datetime.timedelta(days=days), ms=ms)
 
-    def several_days_coming(self, dt=None, utc=True, timezone=None, days=0):
-        return self.__datetime(dt, utc, timezone=timezone) + datetime.timedelta(days=days)
+    def several_days_coming(self, dt=None, utc=True, ms=True, timezone=None, days=0):
+        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) + datetime.timedelta(days=days), ms=ms)
 
-    def several_time_ago(self, dt=None, utc=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.__datetime(dt, utc, timezone=timezone) - relativedelta(years=years, months=months) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+    def several_time_ago(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) - relativedelta(years=years, months=months) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms)
 
-    def several_time_coming(self, dt=None, utc=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.__datetime(dt, utc, timezone=timezone) + relativedelta(years=years, months=months) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+    def several_time_coming(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) + relativedelta(years=years, months=months) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms)
+
+    def utc_datetime(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+
+    def local_datetime(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
     # STRING
 
-    def utc_string(self, utc_dt=None, format=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.datetime_to_string(self.__utc_datetime(utc_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
-
-    def local_string(self, local_dt=None, format=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.datetime_to_string(self.__local_datetime(local_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
-
     def datetime_to_string(self, dt, format=None):
         return dt.strftime(self.format(format))
+
+    def yesterday_utc_string(self, format=None, ms=True):
+        return self.datetime_to_string(self.yesterday_utc_datetime(ms=ms), self.format(format))
+
+    def tomorrow_utc_string(self, format=None, ms=True):
+        return self.datetime_to_string(self.tomorrow_utc_datetime(ms=ms), self.format(format))
+
+    def yesterday_local_string(self, format=None, ms=True, timezone=None):
+        return self.datetime_to_string(self.yesterday_local_datetime(ms=ms, timezone=timezone), self.format(format))
+
+    def tomorrow_local_string(self, format=None, ms=True, timezone=None):
+        return self.datetime_to_string(self.tomorrow_local_datetime(ms=ms, timezone=timezone), self.format(format))
+
+    def several_days_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0):
+        return self.datetime_to_string(self.several_days_ago(dt=dt, utc=utc, ms=ms, timezone=timezone, days=days), self.format(format))
+
+    def several_days_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0):
+        return self.datetime_to_string(self.several_days_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, days=days), self.format(format))
+
+    def several_time_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_string(self.several_time_ago(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+
+    def several_time_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_string(self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+
+    def utc_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_string(self.utc_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+
+    def local_string(self, dt=None, format=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_string(self.local_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
 
     # TIMESTAMP
 
@@ -376,7 +408,7 @@ class TimeConvert:
     # PAST vs. FUTURE
 
     def is_past_time(self, value, base_dt=None, format=None, utc=True):
-        base_dt = base_dt or self.utc_datetime()
+        base_dt = base_dt or self.basic_utc_datetime()
 
         if not value:
             return None
@@ -395,7 +427,7 @@ class TimeConvert:
         return None
 
     def is_future_time(self, value, base_dt=None, format=None, utc=True):
-        base_dt = base_dt or self.utc_datetime()
+        base_dt = base_dt or self.basic_utc_datetime()
 
         if not value:
             return None
@@ -404,8 +436,7 @@ class TimeConvert:
             return (value if utc else self.to_local_datetime(value)) > base_dt
 
         if isinstance(value, basestring):
-            utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(
-                value, format=format)
+            utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(value, format=format)
             return utc_dt and utc_dt > base_dt
 
         if isinstance(value, int):
