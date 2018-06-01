@@ -20,3 +20,4 @@ build
 
 # Pytest cache
 /.cache/
+/.pytest_cache/
