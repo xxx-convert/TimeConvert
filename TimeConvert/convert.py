@@ -4,13 +4,15 @@ from __future__ import division
 
 import calendar
 import datetime
+import locale
 import time
 
-import pytz
 import tzlocal
+
+import pytz
 from dateutil.relativedelta import relativedelta
 
-from .compat import basestring
+from .compat import basestring, is_py2
 
 
 class TimeConvert:
@@ -168,42 +170,60 @@ class TimeConvert:
 
     # STRING
 
-    def datetime_to_string(self, dt, format=None):
+    def datetime_to_unicode_string(self, dt, format=None):
+        format = self.format(format)
+        # Refer: https://github.com/sphinx-doc/sphinx/blob/8ae43b9fd/sphinx/util/osutil.py#L164
+        if is_py2:
+            # if a locale is set, the time strings are encoded in the encoding
+            # given by LC_TIME; if that is available, use it
+            enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
+            return dt.strftime(unicode(format).encode(enc)).decode(enc)
+        else:  # Py3
+            # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
+            # http://bugs.python.org/issue8304
+            try:
+                return dt.strftime(format)
+            except UnicodeEncodeError:
+                return dt.strftime(format.encode('unicode-escape').decode()).encode().decode('unicode-escape')
+
+    def datetime_to_string(self, dt, format=None, isuc=False):
+        if isuc:
+            return self.datetime_to_unicode_string(dt, format=format)
         return dt.strftime(self.format(format))
 
-    def yesterday_utc_string(self, format=None, ms=True):
-        return self.datetime_to_string(self.yesterday_utc_datetime(ms=ms), self.format(format))
+    def yesterday_utc_string(self, format=None, ms=True, isuc=False):
+        return self.datetime_to_string(self.yesterday_utc_datetime(ms=ms), self.format(format), isuc=isuc)
 
-    def tomorrow_utc_string(self, format=None, ms=True):
-        return self.datetime_to_string(self.tomorrow_utc_datetime(ms=ms), self.format(format))
+    def tomorrow_utc_string(self, format=None, ms=True, isuc=False):
+        return self.datetime_to_string(self.tomorrow_utc_datetime(ms=ms), self.format(format), isuc=isuc)
 
-    def yesterday_local_string(self, format=None, ms=True, timezone=None):
-        return self.datetime_to_string(self.yesterday_local_datetime(ms=ms, timezone=timezone), self.format(format))
+    def yesterday_local_string(self, format=None, ms=True, timezone=None, isuc=False):
+        return self.datetime_to_string(self.yesterday_local_datetime(ms=ms, timezone=timezone), self.format(format), isuc=isuc)
 
-    def tomorrow_local_string(self, format=None, ms=True, timezone=None):
-        return self.datetime_to_string(self.tomorrow_local_datetime(ms=ms, timezone=timezone), self.format(format))
+    def tomorrow_local_string(self, format=None, ms=True, timezone=None, isuc=False):
+        return self.datetime_to_string(self.tomorrow_local_datetime(ms=ms, timezone=timezone), self.format(format), isuc=isuc)
 
-    def several_days_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0):
-        return self.datetime_to_string(self.several_days_ago(dt=dt, utc=utc, ms=ms, timezone=timezone, days=days), self.format(format))
+    def several_days_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0, isuc=False):
+        return self.datetime_to_string(self.several_days_ago(dt=dt, utc=utc, ms=ms, timezone=timezone, days=days), self.format(format), isuc=isuc)
 
-    def several_days_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0):
-        return self.datetime_to_string(self.several_days_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, days=days), self.format(format))
+    def several_days_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0, isuc=False):
+        return self.datetime_to_string(self.several_days_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, days=days), self.format(format), isuc=isuc)
 
-    def several_time_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.datetime_to_string(self.several_time_ago(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+    def several_time_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, isuc=False):
+        return self.datetime_to_string(self.several_time_ago(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
-    def several_time_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
-        return self.datetime_to_string(self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+    def several_time_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, isuc=False):
+        return self.datetime_to_string(self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
-    def utc_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None):
+    def utc_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
         final_dt = dt or utc_dt
         final_dt = self.utc_datetime(dt=local_dt) if not final_dt and local_dt else final_dt
-        return self.datetime_to_string(self.utc_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+        return self.datetime_to_string(self.utc_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
-    def local_string(self, dt=None, format=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None):
+    def local_string(self, dt=None, format=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
         final_dt = dt or local_dt
         final_dt = self.to_local_datetime(dt=utc_dt) if not final_dt and utc_dt else final_dt
-        return self.datetime_to_string(self.local_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format))
+        return self.datetime_to_string(self.local_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
     # TIMESTAMP
 

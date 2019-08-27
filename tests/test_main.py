@@ -108,6 +108,9 @@ class TestTimeConvertCommands(object):
     def test_datetime_to_string(self):
         assert tc.validate_string(tc.datetime_to_string(tc.utc_datetime()))
 
+    def test_datetime_to_unicode_string(self):
+        assert tc.datetime_to_unicode_string(tc.utc_datetime(), format=u'%Y年%m月%d日 %H时%M分%S秒')
+
     # TIMESTAMP
 
     def test_utc_timestamp(self):
