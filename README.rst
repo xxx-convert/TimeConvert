@@ -167,4 +167,4 @@ Method
 
     # OTHER
 
-    def total_seconds(self, td):  # timedelta
+    def total_seconds(self, td, ms=True):  # timedelta

@@ -487,8 +487,10 @@ class TimeConvert:
 
     # OTHER
 
-    def total_seconds(self, td):
+    def total_seconds(self, td, ms=True):
         """Total seconds in the duration."""
+        if not ms:
+            return td.days * 86400 + td.seconds
         return ((td.days * 86400 + td.seconds) * self.SECOND_MICROSECOND + td.microseconds) / self.SECOND_MICROSECOND
 
 
