@@ -3,6 +3,7 @@
 import datetime
 
 import pytz
+
 from TimeConvert import TimeConvert as tc
 
 
@@ -41,6 +42,14 @@ class TestTimeConvertCommands(object):
     def test_remove_microsecond(self):
         dt = tc.remove_microsecond(tc.utc_datetime())
         assert dt.microsecond == 0
+
+    # DATE
+
+    def test_utc_date(self):
+        assert isinstance(tc.local_date(), datetime.date)
+
+    def test_local_date(self):
+        assert tc.local_date() == datetime.datetime.date(datetime.datetime.now())
 
     # DATETIME
 

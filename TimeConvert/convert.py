@@ -7,9 +7,8 @@ import datetime
 import locale
 import time
 
-import tzlocal
-
 import pytz
+import tzlocal
 from dateutil.relativedelta import relativedelta
 
 from .compat import basestring, is_py2
@@ -135,6 +134,19 @@ class TimeConvert:
         local_tz = pytz.timezone(tzname)
         utc_dt = dt.replace(tzinfo=pytz.utc)
         return utc_dt.astimezone(local_tz)
+
+    # DATE
+    def utc_date(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_date(self.utc_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
+
+    def local_date(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
+        return self.datetime_to_date(self.local_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
+
+    def datetime_to_date(self, dt):
+        return datetime.datetime.date(dt)
+
+    def is_the_same_day(self, dt1, dt2):
+        return self.local_string(dt1, format='%Y-%m-%d') == self.local_string(dt2, format='%Y-%m-%d')
 
     # DATETIME
 
