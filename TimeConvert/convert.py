@@ -355,17 +355,17 @@ class TimeConvert:
 
     # TIME_COUNT_DOWN
 
-    def timestamp_countdown(self, stamp):
-        return abs(min((self.utc_timestamp() - stamp), 0))
+    def timestamp_countdown(self, stamp, utc=True):
+        return abs(min((self.utc_timestamp() if utc else self.local_timestamp() - stamp), 0))
 
-    def datetime_countdown(self, dt):
-        return self.timestamp_countdown(self.datetime_to_timestamp(dt))
+    def datetime_countdown(self, dt, utc=True):
+        return self.timestamp_countdown(self.datetime_to_timestamp(dt), utc=utc)
 
-    def string_countdown(self, string, format=None):
+    def string_countdown(self, string, format=None, utc=True):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.timestamp_countdown(self.string_to_timestamp(string, format))
+        return self.timestamp_countdown(self.string_to_timestamp(string, format), utc=utc)
 
     # MIDNIGHT
 
