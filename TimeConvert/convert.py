@@ -355,8 +355,8 @@ class TimeConvert:
 
     # TIME_COUNT_DOWN
 
-    def timestamp_countdown(self, stamp):
-        return abs(min(self.utc_timestamp() - stamp, 0))
+    def timestamp_countdown(self, stamp, utc=True):
+        return abs(min((self.utc_timestamp() if utc else self.local_timestamp()) - stamp, 0))
 
     def datetime_countdown(self, dt):
         if self.is_aware(dt):
