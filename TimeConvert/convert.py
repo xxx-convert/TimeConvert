@@ -320,6 +320,31 @@ class TimeConvert:
             return None
         return self.datetime_to_timestamp(self.string_to_local_datetime(string, format), ms=ms)
 
+    # TIMESTAMP ==> DATETIME
+
+    # local_stamp => utc_datetime - fromtimestamp + to_utc_datetime / utcfromtimestamp
+    # local_stamp => local_datetime - fromtimestamp
+    # utc_stamp => utc_datetime - fromtimestamp
+    # utc_stamp => local_datetime - fromtimestamp + to_local_datetime
+    def timestamp_to_datetime(self, stamp):
+        return datetime.datetime.fromtimestamp(stamp)
+
+    def timestamp_to_utc_datetime(self, stamp):
+        # return datetime.datetime.utcfromtimestamp(stamp)
+        return self.to_utc_datetime(self.timestamp_to_datetime(stamp))
+
+    def timestamp_to_local_datetime(self, stamp):
+        return self.timestamp_to_datetime(stamp)
+
+    def utc_timestamp_to_utc_datetime(self, stamp):
+        # return self.make_aware(self.timestamp_to_datetime(stamp), timezone='UTC')
+        return self.make_aware(self.timestamp_to_datetime(stamp), timezone=self.timezone('UTC'))
+
+    def utc_timestamp_to_local_datetime(self, stamp):
+        return self.to_local_datetime(self.timestamp_to_datetime(stamp))
+
+    # TIMESTAMP ==> AGE
+
     # TIME_DELTA
 
     def timestamp_delta(self, stamp1, stamp2, interval=None):
