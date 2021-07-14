@@ -114,6 +114,24 @@ class TestTimeConvertCommands(object):
     def test_local_string(self):
         assert tc.validate_string(tc.local_string())
 
+    def test_utc_datetime_string(self):
+        assert tc.validate_string(tc.utc_datetime_string(), tc.DATETIME_FORMAT)
+
+    def test_local_datetime_string(self):
+        assert tc.validate_string(tc.local_datetime_string(), tc.DATETIME_FORMAT)
+
+    def test_utc_date_string(self):
+        assert tc.validate_string(tc.utc_date_string(), tc.DATE_FORMAT)
+
+    def test_local_date_string(self):
+        assert tc.validate_string(tc.local_date_string(), tc.DATE_FORMAT)
+
+    def test_utc_week_string(self):
+        assert tc.validate_string(tc.utc_week_string(), tc.WEEK_FORMAT)
+
+    def test_local_week_string(self):
+        assert tc.validate_string(tc.local_week_string(), tc.WEEK_FORMAT)
+
     def test_datetime_to_string(self):
         assert tc.validate_string(tc.datetime_to_string(tc.utc_datetime()))
 

@@ -240,6 +240,24 @@ class TimeConvert:
         final_dt = self.to_local_datetime(dt=utc_dt) if not final_dt and utc_dt else final_dt
         return self.datetime_to_string(self.local_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
+    def utc_datetime_string(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.utc_string(dt=dt, format=self.DATETIME_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def local_datetime_string(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.local_string(dt=dt, format=self.DATETIME_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def utc_date_string(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.utc_string(dt=dt, format=self.DATE_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def local_date_string(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.local_string(dt=dt, format=self.DATE_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def utc_week_string(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.utc_string(dt=dt, format=self.WEEK_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def local_week_string(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.local_string(dt=dt, format=self.WEEK_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
     # TIMESTAMP
 
     def __micro_or_milli(self, s, micro=False, milli=False):
