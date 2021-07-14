@@ -17,9 +17,11 @@ from .compat import basestring, is_py2
 class TimeConvert:
     def __init__(self, timezone=None, format=None):
         self.BASE_TIME_ZONE = tzlocal.get_localzone().zone
-        self.BASE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.DATE_FORMAT = '%Y-%m-%d'
+        self.WEEK_FORMAT = '%W'
         self.TIME_ZONE = timezone or self.BASE_TIME_ZONE
-        self.TIME_FORMAT = format or self.BASE_TIME_FORMAT
+        self.TIME_FORMAT = format or self.DATETIME_FORMAT
         self.SECOND_MILLISECOND = 10 ** 3
         self.SECOND_MICROSECOND = 10 ** 6
 
@@ -147,7 +149,7 @@ class TimeConvert:
         return datetime.datetime.date(dt)
 
     def is_the_same_day(self, dt1, dt2):
-        return self.local_string(dt1, format='%Y-%m-%d') == self.local_string(dt2, format='%Y-%m-%d')
+        return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
 
     # DATETIME
 

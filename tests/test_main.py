@@ -24,7 +24,7 @@ class TestTimeConvertCommands(object):
         tc.__init__(format=timeformat)
         assert tc.TIME_FORMAT == timeformat
         assert tc.format() == timeformat
-        tc.__init__(format=tc.BASE_TIME_FORMAT)
+        tc.__init__(format=tc.DATETIME_FORMAT)
 
     # OFFSET
 
