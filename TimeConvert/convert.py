@@ -136,6 +136,7 @@ class TimeConvert:
         return utc_dt.astimezone(local_tz)
 
     # DATE
+
     def utc_date(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
         return self.datetime_to_date(self.utc_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
@@ -507,6 +508,7 @@ class TimeConvert:
         return None
 
     # YEAR/MONTH/DAY
+
     def year(self, dt=None, utc=False, timezone=None, idx=0):
         return self.__datetime(dt=self.several_time_coming(dt=dt, utc=utc, timezone=timezone, years=idx), utc=utc).year
 

@@ -79,11 +79,29 @@ Method
 
     # STRING
 
-    def utc_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None):
+    def datetime_to_unicode_string(self, dt, format=None):
 
-    def local_string(self, dt=None, format=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None):
+    def datetime_to_string(self, dt, format=None, isuc=False):
 
-    def datetime_to_string(self, dt, format=None):
+    def yesterday_utc_string(self, format=None, ms=True, isuc=False):
+
+    def tomorrow_utc_string(self, format=None, ms=True, isuc=False):
+
+    def yesterday_local_string(self, format=None, ms=True, timezone=None, isuc=False):
+
+    def tomorrow_local_string(self, format=None, ms=True, timezone=None, isuc=False):
+
+    def several_days_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0, isuc=False):
+
+    def several_days_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, days=0, isuc=False):
+
+    def several_time_ago_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, isuc=False):
+
+    def several_time_coming_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, isuc=False):
+
+    def utc_string(self, dt=None, format=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+
+    def local_string(self, dt=None, format=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
 
     # TIMESTAMP
 
@@ -92,6 +110,8 @@ Method
     def local_timestamp(self, local_dt=None, ms=False, micro=False, milli=False):
 
     def datetime_to_timestamp(self, dt, ms=False):
+
+    def structime_to_timestamp(self, structime):
 
     def seconds_to_microseconds(self, s):
 
@@ -116,6 +136,20 @@ Method
     def string_to_utc_timestamp(self, string, format=None, ms=False):
 
     def string_to_local_timestamp(self, string, format=None, ms=False):
+
+    # TIMESTAMP ==> DATETIME
+
+    def timestamp_to_datetime(self, stamp):
+
+    def timestamp_to_utc_datetime(self, stamp):
+
+    def timestamp_to_local_datetime(self, stamp):
+
+    def utc_timestamp_to_utc_datetime(self, stamp):
+
+    def utc_timestamp_to_local_datetime(self, stamp):
+
+    # TIMESTAMP ==> AGE
 
     # TIME_DELTA
 
@@ -149,6 +183,8 @@ Method
 
     def seconds_since_midnight(self, dt=None, utc=False):
 
+    def seconds_until_midnight(self, dt=None, utc=False, seconds_cast_func=float):
+
     # AWARE vs. NAIVE
 
     def is_aware(self, value):
@@ -164,6 +200,18 @@ Method
     def is_past_time(self, value, base_dt=None, format=None, utc=True):
 
     def is_future_time(self, value, base_dt=None, format=None, utc=True):
+
+    # YEAR/MONTH/DAY
+
+    def year(self, dt=None, utc=False, timezone=None, idx=0):
+
+    def month(self, dt=None, utc=False, timezone=None, idx=0):
+
+    def day(self, dt=None, utc=False, timezone=None, idx=0):
+
+    def days_of_year(self, year=None, dt=None, idx=0):
+
+    def days_of_month(self, year=None, month=None, dt=None, idx=0):
 
     # OTHER
 
