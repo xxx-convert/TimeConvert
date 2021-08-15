@@ -20,7 +20,7 @@ setup(
 
     packages=['TimeConvert'],
     py_modules=[],
-    install_requires=['python-dateutil', 'pytz', 'tzlocal'],
+    install_requires=['python-dateutil', 'pytz', 'tzlocal==2.1'],
 
     classifiers=[
         "License :: OSI Approved :: BSD License",
