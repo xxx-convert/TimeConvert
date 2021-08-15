@@ -16,7 +16,8 @@ from .compat import basestring, is_py2
 
 class TimeConvert:
     def __init__(self, timezone=None, format=None):
-        self.BASE_TIME_ZONE = tzlocal.get_localzone().zone
+        tz_localzone = tzlocal.get_localzone()
+        self.BASE_TIME_ZONE = tz_localzone.zone if hasattr(tz_localzone, 'zone') else tz_localzone.key
         self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.DATE_FORMAT = '%Y-%m-%d'
         self.WEEK_FORMAT = '%W'
