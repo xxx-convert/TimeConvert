@@ -34,6 +34,9 @@ class TimeConvert:
     def format(self, format=None):
         return format or self.TIME_FORMAT
 
+    def date_format(self, format=None):
+        return format or self.DATE_FORMAT
+
     # PRIVATE
 
     def __utc_datetime(self, utc_dt=None, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
@@ -147,7 +150,8 @@ class TimeConvert:
         return self.datetime_to_date(self.local_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
     def datetime_to_date(self, dt):
-        return datetime.datetime.date(dt)
+        # return datetime.datetime.date(dt)
+        return dt.date()
 
     def is_the_same_day(self, dt1, dt2):
         return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
@@ -292,6 +296,38 @@ class TimeConvert:
 
     def seconds_to_milliseconds(self, s):
         return self.__seconds_to_other(s, base=self.SECOND_MILLISECOND)
+
+    # STRING ==> DATE
+
+    def string_to_date(self, string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.string_to_datetime(string, format).date()
+
+    def string_to_utc_date(self, string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.string_to_utc_datetime(string, format).date()
+
+    def string_to_local_date(self, string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.string_to_local_datetime(string, format).date()
+
+    def utc_string_to_utc_date(self, utc_string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(utc_string, format):
+            return None
+        return self.utc_string_to_utc_datetime(utc_string, format).date()
+
+    def utc_string_to_local_date(self, utc_string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(utc_string, format):
+            return None
+        return self.utc_string_to_local_datetime(utc_string, format).date()
 
     # STRING ==> DATETIME
 

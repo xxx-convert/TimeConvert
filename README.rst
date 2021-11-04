@@ -129,6 +129,18 @@ Method
 
     def seconds_to_milliseconds(self, s):
 
+    # STRING ==> DATE
+
+    def string_to_date(self, string, format=None):
+
+    def string_to_utc_date(self, string, format=None):
+
+    def string_to_local_date(self, string, format=None):
+
+    def utc_string_to_utc_date(self, utc_string, format=None):
+
+    def utc_string_to_local_date(self, utc_string, format=None):
+
     # STRING ==> DATETIME
 
     def string_to_datetime(self, string, format=None):

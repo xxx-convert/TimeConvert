@@ -34,7 +34,7 @@ class TestTimeConvertCommands(object):
     # VALIDATE
 
     def test_validate_string(self):
-        assert tc.validate_string('1988-06-15 08:08:08', '%Y-%m-%d %H:%M:%S')
+        assert tc.validate_string('2017-12-08 15:27:00', '%Y-%m-%d %H:%M:%S')
         assert not tc.validate_string('19880615080808', '%Y-%m-%d %H:%M:%S')
 
     # REPLACE
@@ -153,22 +153,52 @@ class TestTimeConvertCommands(object):
         assert isinstance(tc.datetime_to_timestamp(dt=dt), int)
         assert isinstance(tc.datetime_to_timestamp(dt=dt, ms=True), float)
 
+    # STRING ==> DATE
+
+    def test_string_to_date(self):
+        assert tc.string_to_date('2017-12-08') == datetime.date(2017, 12, 8)
+        assert tc.string_to_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
+
+    def test_string_to_utc_date(self):
+        assert tc.string_to_utc_date('2017-12-08') == datetime.date(2017, 12, 7)
+        assert tc.string_to_utc_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
+
+    def test_string_to_local_date(self):
+        assert tc.string_to_local_date('2017-12-08') == datetime.date(2017, 12, 8)
+        assert tc.string_to_local_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
+
+    def test_utc_string_to_utc_date(self):
+        assert tc.utc_string_to_utc_date('2017-12-08') == datetime.date(2017, 12, 8)
+        assert tc.utc_string_to_utc_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
+
+    def test_utc_string_to_local_date(self):
+        assert tc.utc_string_to_local_date('2017-12-08') == datetime.date(2017, 12, 8)
+        assert tc.utc_string_to_local_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
+
     # STRING ==> DATETIME
 
     def test_string_to_datetime(self):
-        assert tc.is_local_datetime(tc.string_to_datetime('1988-06-15 08:08:08'), local_tz=-1)
+        dt = tc.string_to_datetime('2017-12-08 15:27:00')
+        assert dt == datetime.datetime(2017, 12, 8, 15, 27, 0)
+        assert tc.is_local_datetime(dt, local_tz=-1)
 
     def test_string_to_utc_datetime(self):
-        assert tc.is_utc_datetime(tc.string_to_utc_datetime('1988-06-15 08:08:08'))
+        dt = tc.string_to_utc_datetime('2017-12-08 15:27:00')
+        assert dt == datetime.datetime(2017, 12, 8, 7, 27, 0, tzinfo=pytz.utc)
+        assert tc.is_utc_datetime(dt)
 
     def test_string_to_local_datetime(self):
-        assert tc.is_local_datetime(tc.string_to_local_datetime('1988-06-15 08:08:08'))
+        dt = tc.string_to_local_datetime('2017-12-08 15:27:00')
+        assert tc.is_local_datetime(dt)
 
     def test_utc_string_to_utc_datetime(self):
-        assert tc.is_utc_datetime(tc.utc_string_to_utc_datetime('1988-06-15 08:08:08'))
+        dt = tc.utc_string_to_utc_datetime('2017-12-08 15:27:00')
+        assert dt == datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=pytz.utc)
+        assert tc.is_utc_datetime(dt)
 
     def test_utc_string_to_local_datetime(self):
-        assert tc.is_local_datetime(tc.utc_string_to_local_datetime('1988-06-15 08:08:08'))
+        dt = tc.utc_string_to_local_datetime('2017-12-08 15:27:00')
+        assert tc.is_local_datetime(dt)
 
     # PAST vs. FUTURE
 
