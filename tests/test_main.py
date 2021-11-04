@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import types
 
 import pytz
 
@@ -233,3 +234,18 @@ class TestTimeConvertCommands(object):
         # Base_dt
         assert tc.is_future_time(tc.utc_datetime(), base_dt=tc.several_time_ago(hours=1))
         assert not tc.is_future_time(tc.several_time_ago(hours=2), base_dt=tc.several_time_ago(hours=1))
+
+    # OTHER
+    def test_date_range(self):
+        dates = tc.date_range('2017-12-08', '2017-12-31')
+        assert isinstance(dates, types.GeneratorType)
+        dates = [date for date in dates]
+        assert isinstance(dates[0], datetime.date)
+        assert dates[0] == datetime.date(2017, 12, 8)
+        assert dates[-1] == datetime.date(2017, 12, 30)
+        assert len(dates) == 23
+
+        dates = tc.date_range('2017-12-08', '2017-12-31', include_end=True)
+        dates = [date for date in dates]
+        assert dates[-1] == datetime.date(2017, 12, 31)
+        assert len(dates) == 24
