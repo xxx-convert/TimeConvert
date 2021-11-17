@@ -79,7 +79,7 @@ class TimeConvert:
     # BASIC DATETIME
 
     def basic_utc_datetime(self, ms=True):
-        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms=ms)
+        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.UTC), ms=ms)
 
     def basic_local_datetime(self, ms=True, timezone=None):
         # In[1]: import time
@@ -98,7 +98,7 @@ class TimeConvert:
         return self.__remove_ms_or_not(self.to_local_datetime(self.basic_utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def is_utc_datetime(self, dt):
-        return dt.tzinfo == pytz.utc
+        return dt.tzinfo == pytz.UTC
 
     def is_local_datetime(self, dt, local_tz=None):
         """
@@ -131,14 +131,14 @@ class TimeConvert:
             pass
         local_tz = pytz.timezone(self.timezone(timezone))
         local_dt = local_tz.localize(dt, is_dst=None)
-        return local_dt.astimezone(pytz.utc)
+        return local_dt.astimezone(pytz.UTC)
 
     def to_local_datetime(self, dt, timezone=None):
         tzname = self.timezone(timezone)
         if self.is_local_datetime(dt, local_tz=tzname):
             return dt
         local_tz = pytz.timezone(tzname)
-        utc_dt = dt.replace(tzinfo=pytz.utc)
+        utc_dt = dt.replace(tzinfo=pytz.UTC)
         return utc_dt.astimezone(local_tz)
 
     # DATE

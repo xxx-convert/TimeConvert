@@ -56,7 +56,7 @@ class TestTimeConvertCommands(object):
 
     def test_utc_datetime(self):
         dt = tc.utc_datetime()
-        assert dt.tzinfo == pytz.utc
+        assert dt.tzinfo == pytz.UTC
         dt = tc.utc_datetime(ms=False)
         assert dt.microsecond == 0
 
@@ -185,7 +185,7 @@ class TestTimeConvertCommands(object):
 
     def test_string_to_utc_datetime(self):
         dt = tc.string_to_utc_datetime('2017-12-08 15:27:00')
-        assert dt == datetime.datetime(2017, 12, 8, 7, 27, 0, tzinfo=pytz.utc)
+        assert dt == datetime.datetime(2017, 12, 8, 7, 27, 0, tzinfo=pytz.UTC)
         assert tc.is_utc_datetime(dt)
 
     def test_string_to_local_datetime(self):
@@ -194,7 +194,7 @@ class TestTimeConvertCommands(object):
 
     def test_utc_string_to_utc_datetime(self):
         dt = tc.utc_string_to_utc_datetime('2017-12-08 15:27:00')
-        assert dt == datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=pytz.utc)
+        assert dt == datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=pytz.UTC)
         assert tc.is_utc_datetime(dt)
 
     def test_utc_string_to_local_datetime(self):
