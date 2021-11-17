@@ -589,15 +589,19 @@ class TimeConvert:
             return td.days * 86400 + td.seconds
         return ((td.days * 86400 + td.seconds) * self.SECOND_MICROSECOND + td.microseconds) / self.SECOND_MICROSECOND
 
-    def date_range(self, start_date, end_date, include_end=None):
+    def date_range(self, start_date, end_date, include_end=None, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
         if isinstance(start_date, str):
-            start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
+            start_date = datetime.datetime.strptime(start_date, start_date_format or format or self.DATE_FORMAT).date()
         if isinstance(end_date, str):
-            end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
+            end_date = datetime.datetime.strptime(end_date, end_date_format or format or self.DATE_FORMAT).date()
         if include_end:
             end_date = end_date + datetime.timedelta(1)
-        for n in range(int((end_date - start_date).days)):
-            yield start_date + datetime.timedelta(n)
+        if return_type in ['string', 'str']:
+            for n in range(int((end_date - start_date).days)):
+                yield (start_date + datetime.timedelta(n)).strftime(return_format or format or self.DATE_FORMAT)
+        else:
+            for n in range(int((end_date - start_date).days)):
+                yield start_date + datetime.timedelta(n)
 
     daterange = date_range
 

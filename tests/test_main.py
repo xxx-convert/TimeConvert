@@ -249,3 +249,15 @@ class TestTimeConvertCommands(object):
         dates = [date for date in dates]
         assert dates[-1] == datetime.date(2017, 12, 31)
         assert len(dates) == 24
+
+        dates = tc.date_range('2017-12-08', '2017-12-31', include_end=True, return_type='string')
+        dates = [date for date in dates]
+        assert dates[-1] == '2017-12-31'
+
+        dates = tc.date_range('2017-12-08', '2017-12-31', include_end=True, return_type='str', return_format='%Y%m%d')
+        dates = [date for date in dates]
+        assert dates[-1] == '20171231'
+
+        dates = tc.date_range('20171208', '20171231', include_end=True, format='%Y%m%d', return_type='str')
+        dates = [date for date in dates]
+        assert dates[-1] == '20171231'
