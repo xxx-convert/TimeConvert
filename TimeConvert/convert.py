@@ -15,12 +15,16 @@ from .compat import basestring, is_py2
 
 
 class TimeConvert:
+    def __get_base_time_zone(self):
+        if hasattr(tzlocal, 'get_localzone_name'):
+            return tzlocal.get_localzone_name()
+        tz_localzone = tzlocal.get_localzone()
+        if hasattr(tz_localzone, 'unwrap_shim'):
+            tz_localzone = tz_localzone.unwrap_shim()
+        return tz_localzone.key if hasattr(tz_localzone, 'key') else tz_localzone.zone
+
     def __init__(self, timezone=None, format=None):
-        if is_py2:
-            tz_localzone = tzlocal.get_localzone()
-            self.BASE_TIME_ZONE = tz_localzone.zone if hasattr(tz_localzone, 'zone') else tz_localzone.key
-        else:
-            self.BASE_TIME_ZONE = tzlocal.get_localzone_name()
+        self.BASE_TIME_ZONE = self.__get_base_time_zone()
         self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.DATE_FORMAT = '%Y-%m-%d'
         self.WEEK_FORMAT = '%W'
