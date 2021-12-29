@@ -1,3 +1,6 @@
 # -*- coding: utf-8 -*-
+from TimeConvert.convert import TimeConvert
 
-from TimeConvert.convert import *
+__all__ = [
+    'TimeConvert'
+]
