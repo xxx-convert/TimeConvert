@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 from .compat import basestring, is_py2
 
 
-class TimeConvert:
+class TimeConvertTools(object):
     def __init__(self, timezone=None, format=None):
         tz_localzone = tzlocal.get_localzone()
         self.BASE_TIME_ZONE = tz_localzone.zone if hasattr(tz_localzone, 'zone') else tz_localzone.key
@@ -606,4 +606,4 @@ class TimeConvert:
     daterange = date_range
 
 
-TimeConvert = TimeConvert()
+TimeConvert = TimeConvertTools()
