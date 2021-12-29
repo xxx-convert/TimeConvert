@@ -7,17 +7,24 @@ import datetime
 import locale
 import time
 
-import pytz
 import tzlocal
 from dateutil.relativedelta import relativedelta
+from dateutil.tz import tz
 
 from .compat import basestring, is_py2
 
 
 class TimeConvertTools(object):
-    def __init__(self, timezone=None, format=None):
+    def __get_base_time_zone(self):
+        if hasattr(tzlocal, 'get_localzone_name'):
+            return tzlocal.get_localzone_name()
         tz_localzone = tzlocal.get_localzone()
-        self.BASE_TIME_ZONE = tz_localzone.zone if hasattr(tz_localzone, 'zone') else tz_localzone.key
+        if hasattr(tz_localzone, 'unwrap_shim'):
+            tz_localzone = tz_localzone.unwrap_shim()
+        return tz_localzone.key if hasattr(tz_localzone, 'key') else tz_localzone.zone
+
+    def __init__(self, timezone=None, format=None):
+        self.BASE_TIME_ZONE = self.__get_base_time_zone()
         self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.DATE_FORMAT = '%Y-%m-%d'
         self.WEEK_FORMAT = '%W'
@@ -79,7 +86,7 @@ class TimeConvertTools(object):
     # BASIC DATETIME
 
     def basic_utc_datetime(self, ms=True):
-        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.UTC), ms=ms)
+        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=tz.UTC), ms=ms)
 
     def basic_local_datetime(self, ms=True, timezone=None):
         # In[1]: import time
@@ -98,7 +105,7 @@ class TimeConvertTools(object):
         return self.__remove_ms_or_not(self.to_local_datetime(self.basic_utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def is_utc_datetime(self, dt):
-        return dt.tzinfo == pytz.UTC
+        return dt.tzinfo == tz.UTC
 
     def is_local_datetime(self, dt, local_tz=None):
         """
@@ -120,7 +127,7 @@ class TimeConvertTools(object):
         # In [4]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
         # Out[4]: True
 
-        return str(dt.tzinfo) == str(None if local_tz == -1 else self.timezone(local_tz))
+        return str(dt.tzinfo) == str(None if local_tz == -1 else tz.gettz(self.timezone(local_tz)))
 
     def to_utc_datetime(self, dt, timezone=None):
         if self.is_utc_datetime(dt):
@@ -129,17 +136,17 @@ class TimeConvertTools(object):
             dt = self.make_naive(dt)
         except ValueError:
             pass
-        local_tz = pytz.timezone(self.timezone(timezone))
-        local_dt = local_tz.localize(dt, is_dst=None)
-        return local_dt.astimezone(pytz.UTC)
+        tzinfo = tz.gettz(self.timezone(timezone))
+        local_dt = dt.replace(tzinfo=tzinfo)
+        return local_dt.astimezone(tz.UTC)
 
     def to_local_datetime(self, dt, timezone=None):
         tzname = self.timezone(timezone)
         if self.is_local_datetime(dt, local_tz=tzname):
             return dt
-        local_tz = pytz.timezone(tzname)
-        utc_dt = dt.replace(tzinfo=pytz.UTC)
-        return utc_dt.astimezone(local_tz)
+        tzinfo = tz.gettz(tzname)
+        utc_dt = dt.replace(tzinfo=tz.UTC)
+        return utc_dt.astimezone(tzinfo)
 
     # DATE
 
@@ -482,47 +489,40 @@ class TimeConvertTools(object):
 
     def is_aware(self, value):
         """
-        Determines if a given datetime.datetime is aware.
-        The logic is described in Python's docs:
-        http://docs.python.org/library/datetime.html#datetime.tzinfo
+        Determine if a given datetime.datetime is aware.
+        The concept is defined in Python's docs:
+        https://docs.python.org/library/datetime.html#datetime.tzinfo
+        Assuming value.tzinfo is either None or a proper datetime.tzinfo,
+        value.utcoffset() implements the appropriate logic.
         """
-        return value.tzinfo is not None and value.tzinfo.utcoffset(value) is not None
+        return value.utcoffset() is not None
 
     def is_naive(self, value):
         """
-        Determines if a given datetime.datetime is naive.
-        The logic is described in Python's docs:
-        http://docs.python.org/library/datetime.html#datetime.tzinfo
+        Determine if a given datetime.datetime is naive.
+        The concept is defined in Python's docs:
+        https://docs.python.org/library/datetime.html#datetime.tzinfo
+        Assuming value.tzinfo is either None or a proper datetime.tzinfo,
+        value.utcoffset() implements the appropriate logic.
         """
-        return value.tzinfo is None or value.tzinfo.utcoffset(value) is None
+        return value.utcoffset() is None
 
     def make_aware(self, value, timezone=None):
-        """
-        Makes a naive datetime.datetime in a given time zone aware.
-        """
-        timezone = pytz.timezone(self.timezone(timezone))
-        if hasattr(timezone, 'localize'):
-            # This method is available for pytz time zones.
-            return timezone.localize(value, is_dst=None)
-        else:
-            # Check that we won't overwrite the timezone of an aware datetime.
-            if self.is_aware(value):
-                raise ValueError('make_aware expects a naive datetime, got %s' % value)
-            # This may be wrong around DST changes!
-        return value.replace(tzinfo=timezone)
+        """Make a naive datetime.datetime in a given time zone aware."""
+        tzinfo = tz.gettz(self.timezone(timezone))
+        # Check that we won't overwrite the timezone of an aware datetime.
+        if self.is_aware(value):
+            raise ValueError('make_aware expects a naive datetime, got %s' % value)
+        # This may be wrong around DST changes!
+        return value.replace(tzinfo=tzinfo)
 
     def make_naive(self, value, timezone=None):
-        """
-        Makes an aware datetime.datetime naive in a given time zone.
-        """
-        timezone = pytz.timezone(self.timezone(timezone))
-        # If `value` is naive, astimezone() will raise a ValueError,
-        # so we don't need to perform a redundant check.
-        value = value.astimezone(timezone)
-        if hasattr(timezone, 'normalize'):
-            # This method is available for pytz time zones.
-            value = timezone.normalize(value)
-        return value.replace(tzinfo=None)
+        """Make an aware datetime.datetime naive in a given time zone."""
+        tzinfo = tz.gettz(self.timezone(timezone))
+        # Emulate the behavior of astimezone() on Python < 3.6.
+        if self.is_naive(value):
+            raise ValueError('make_naive() cannot be applied to a naive datetime')
+        return value.astimezone(tzinfo).replace(tzinfo=None)
 
     # PAST vs. FUTURE
 
