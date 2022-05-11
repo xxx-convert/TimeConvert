@@ -4,6 +4,7 @@ import datetime
 import types
 
 from dateutil.tz import tz
+from isoweek import Week
 
 from TimeConvert import TimeConvert as tc
 
@@ -261,3 +262,30 @@ class TestTimeConvertCommands(object):
         dates = tc.date_range('20171208', '20171231', include_end=True, format='%Y%m%d', return_type='str')
         dates = [date for date in dates]
         assert dates[-1] == '20171231'
+
+    def test_week_range(self):
+        dates = tc.week_range('2017-12-08', '2017-12-31')
+        assert isinstance(dates, types.GeneratorType)
+        dates = [date for date in dates]
+        assert isinstance(dates[0], Week)
+        assert dates[0] == Week(2017, 49)
+        assert dates[-1] == Week(2017, 52)
+        assert len(dates) == 4
+
+        dates = tc.week_range('2017-12-08', '2017-12-31', return_type='string')
+        dates = [date for date in dates]
+        assert dates[-1]['week'] == '2017W52'
+        assert dates[-1]['start'] == '2017-12-25'
+        assert dates[-1]['end'] == '2017-12-31'
+
+        dates = tc.week_range('2017-12-08', '2017-12-31', return_type='str', return_format='%Y%m%d')
+        dates = [date for date in dates]
+        assert dates[-1]['week'] == '2017W52'
+        assert dates[-1]['start'] == '20171225'
+        assert dates[-1]['end'] == '20171231'
+
+        dates = tc.week_range('20171208', '20171231', format='%Y%m%d', return_type='str')
+        dates = [date for date in dates]
+        assert dates[-1]['week'] == '2017W52'
+        assert dates[-1]['start'] == '20171225'
+        assert dates[-1]['end'] == '20171231'

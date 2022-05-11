@@ -10,6 +10,7 @@ import time
 import tzlocal
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tz
+from isoweek import Week
 
 from .compat import basestring, is_py2
 
@@ -591,9 +592,9 @@ class TimeConvertTools(object):
 
     def date_range(self, start_date, end_date, include_end=None, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
         if isinstance(start_date, str):
-            start_date = datetime.datetime.strptime(start_date, start_date_format or format or self.DATE_FORMAT).date()
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
         if isinstance(end_date, str):
-            end_date = datetime.datetime.strptime(end_date, end_date_format or format or self.DATE_FORMAT).date()
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
         if include_end:
             end_date = end_date + datetime.timedelta(1)
         if return_type in ['string', 'str']:
@@ -603,7 +604,27 @@ class TimeConvertTools(object):
             for n in range(int((end_date - start_date).days)):
                 yield start_date + datetime.timedelta(n)
 
+    def week_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='isoweek', return_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        start_week = Week.withdate(start_date)
+        end_week = Week.withdate(end_date)
+        if return_type in ['string', 'str']:
+            for n in range(int(end_week - start_week) + 1):
+                current_week = start_week + n
+                yield {
+                    'week': current_week.isoformat(),
+                    'start': current_week.monday().strftime(return_format or format or self.DATE_FORMAT),
+                    'end': current_week.sunday().strftime(return_format or format or self.DATE_FORMAT),
+                }
+        else:
+            for n in range(int(end_week - start_week) + 1):
+                yield start_week + n
+
     daterange = date_range
+    weekrange = week_range
 
 
 TimeConvert = TimeConvertTools()
