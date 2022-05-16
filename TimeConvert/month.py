@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """Class file for a Month object.
-
 Provides various utilities for generating, manipulating, and displaying
 months.
-
 import months
-
 >>> month = months.Month(2015, 4)
 >>> print(month.full_display)
 'April 2015'
@@ -34,9 +31,9 @@ datetime.date(2015, 4, 30)
 201504.0
 """
 
-from collections import namedtuple
 import calendar
 import datetime
+from collections import namedtuple
 from functools import wraps
 
 
@@ -47,21 +44,16 @@ def __utctoday():
 
 def _get(other):
     """Coerce an arbitrary object into a Month type.
-
     This is designed to be used in functions accepting arbitrary type
     arguments in an *args situation, in which the value is expected to be
     comparable to a Month.
-
     Accepted types:
-
     1. Month
     2. Date / Datetime
     3. Two-value tuples (in *args or as a single argument).
     4. Single-value lists/tuples containing one of the above.
-
     >>> __get((2018, 1))
     Month(2018, 1)
-
     """
     # check for valid types, return if its easy
     if isinstance(other, Month):
@@ -88,7 +80,6 @@ def _get(other):
 
 def _handle_other_decorator(func):
     """Decorate functions to handle "other" Month-like arguments.
-
     The arguments are assumed to be within *args, while only a single
     value (the Month) is actually desired for the function's execution.
     The __get function coerces the value to a month and passes it to the
@@ -103,7 +94,6 @@ def _handle_other_decorator(func):
 
 class Month(namedtuple('Month', ['year', 'month'])):
     """Represent a specific month of a year.
-
     Provides various utilities for generating, manipulating, and displaying
     months.
     """
@@ -136,7 +126,6 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def month_name(self):
         """Return the calendar name of the month.
-
         >>> Month(2015, 4).month_name
         'April'
         """
@@ -145,7 +134,6 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def month_abbr(self):
         """Return the abbreviated calendar name of the month.
-
         >>> Month(2015, 4).month_abbr
         'Apr'
         """
@@ -154,7 +142,6 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def full_display(self):
         """Return the calendar name of the month along with the year.
-
         >>> Month(2015, 4).full_display
         'April 2015'
         """
@@ -163,7 +150,6 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def abbr_display(self):
         """Return the abbreviated calendar name of the month and the year.
-
         >>> Month(2015, 4).full_display
         'Apr 2015'
         """
@@ -172,7 +158,6 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def n_days(self):
         """Return the number of days in the month.
-
         >>> Month(2018, 1).n_days
         31
         """
@@ -181,10 +166,8 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def gregorian_month_number(self):
         """Return the number of months since the start of Gregorian year 1.
-
         Year 0 and month 0 are invalid. So the first month of year 1 is 1, and
         the first month of year -1 is -1.
-
         >>> Month(1, 1).gregorian_month_number
         1
         >>> Month(2, 2).gregorian_month_number
@@ -200,7 +183,6 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @property
     def dates(self):
         """Return a tuple of all days in the month.
-
         >>> Month(2018, 1).dates[:2]
         (datetime.date(2018, 1, 1), datetime.date(2018, 1, 2))
         """
@@ -209,17 +191,14 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @classmethod
     def from_date(cls, date):
         """Return a Month instance from given a date or datetime object.
-
         Parameters
         ----------
         date : date or datetime
             A date/datetime object as implemented via the standard lib module.
-
         Returns
         -------
         month : Month
             The month object for that date.
-
         """
         try:
             date = date.date()
@@ -239,20 +218,16 @@ class Month(namedtuple('Month', ['year', 'month'])):
 
     def __add__(self, other):
         """Offset a number of months into the future.
-
         >>> Month(2015, 4) + 9
         Month(2016, 1)
-
         Parameters
         ----------
         other : int
             Integer number of months to add.
-
         Returns
         -------
         month : Month
             The month object offset N months.
-
         """
         if not isinstance(other, int):
             raise TypeError("Only ints can be added to months")
@@ -262,25 +237,25 @@ class Month(namedtuple('Month', ['year', 'month'])):
 
     def __sub__(self, other):
         """Offset a number of months into the past.
-
         >>> Month(2015, 4) - 9
         Month(2014, 7)
-
         Parameters
         ----------
         other : int
             Integer number of months to subtract.
-
         Returns
         -------
         month : Month
             The month object offset -N months.
-
         """
-        if not isinstance(other, int):
-            raise TypeError("Only ints can be subtracted from months")
+        # if not isinstance(other, int):
+        #     raise TypeError("Only ints can be subtracted from months")
+        #
+        # return self + (-other)
+        if isinstance(other, int):
+            return self + (-other)
 
-        return self + (-other)
+        return self.gregorian_month_number - other.gregorian_month_number
 
     @property
     def start_date(self):
@@ -299,27 +274,21 @@ class Month(namedtuple('Month', ['year', 'month'])):
 
     def nth(self, day):
         """Get date object for nth day of month.
-
         Accepts nonzero integer values between +- ``month.n_days``.
-
         >>> Month(2018, 1).nth(1) == Month(2018, 1).start_date
         True
         >>> Month(2018, 1).nth(8)
         datetime.date(2018, 1, 8)
-
         >>> Month(2018, 1).nth(-2)
         datetime.date(2018, 1, 30)
-
         Parameters
         ----------
         day : int
             Day of the month.
-
         Returns
         -------
         date : datetime.date
             Date object for the day of the month.
-
         """
 
         # validate param
@@ -338,26 +307,21 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @_handle_other_decorator
     def to(self, other):
         """Generate a list of all months between two months, inclusively.
-
         Accepts two-element lists/tuples, date-like objects, or Month objects.
         If months are provided out of order (like ``june_18.to.march_18``) then
         the list will also be in reverse order.
-
         >>> Month(2018, 1).to(Month(2018, 2))
         [Month(2018, 1), Month(2018, 2)]
         >>> Month(2018, 3).to(2018, 1)
         [Month(2018, 3), Month(2018, 2), Month(2018, 1)]
-
         Parameters
         ----------
         other : Month, date, datetime, tuple
             A Month-like object.
-
         Returns
         -------
         months : list
             List of months spanning the two objects, inclusively.
-
         """
         def walk(first, second):
             """TODO: Something more efficient than iterative walking."""
@@ -375,24 +339,19 @@ class Month(namedtuple('Month', ['year', 'month'])):
     @_handle_other_decorator
     def distance(self, other):
         """Return the number of months distance between months.
-
         This will always be a positive number. Accepts two-element lists/tuples
         or Month objects.
-
         >>> Month(2018, 1).distance(Month(2018, 12))
         11
         >>> Month(2018, 5).distance(2018, 1)
         4
-
         Parameters
         ----------
         other : Month, date, datetime, tuple
             A Month-like object.
-
         Returns
         -------
         n_months : int
             Integer number of months distance.
-
         """
         return abs(self.gregorian_month_number - other.gregorian_month_number)

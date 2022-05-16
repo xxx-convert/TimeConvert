@@ -6,6 +6,7 @@ import types
 from dateutil.tz import tz
 from isoweek import Week
 
+from TimeConvert import Month
 from TimeConvert import TimeConvert as tc
 
 
@@ -264,28 +265,55 @@ class TestTimeConvertCommands(object):
         assert dates[-1] == '20171231'
 
     def test_week_range(self):
-        dates = tc.week_range('2017-12-08', '2017-12-31')
-        assert isinstance(dates, types.GeneratorType)
-        dates = [date for date in dates]
-        assert isinstance(dates[0], Week)
-        assert dates[0] == Week(2017, 49)
-        assert dates[-1] == Week(2017, 52)
-        assert len(dates) == 4
+        weeks = tc.week_range('2017-12-08', '2017-12-31')
+        assert isinstance(weeks, types.GeneratorType)
+        weeks = [week for week in weeks]
+        assert isinstance(weeks[0], Week)
+        assert weeks[0] == Week(2017, 49)
+        assert weeks[-1] == Week(2017, 52)
+        assert len(weeks) == 4
 
-        dates = tc.week_range('2017-12-08', '2017-12-31', return_type='string')
-        dates = [date for date in dates]
-        assert dates[-1]['week'] == '2017W52'
-        assert dates[-1]['start'] == '2017-12-25'
-        assert dates[-1]['end'] == '2017-12-31'
+        weeks = tc.week_range('2017-12-08', '2017-12-31', return_type='string')
+        weeks = [week for week in weeks]
+        assert weeks[-1]['week'] == '2017W52'
+        assert weeks[-1]['start'] == '2017-12-25'
+        assert weeks[-1]['end'] == '2017-12-31'
 
-        dates = tc.week_range('2017-12-08', '2017-12-31', return_type='str', return_format='%Y%m%d')
-        dates = [date for date in dates]
-        assert dates[-1]['week'] == '2017W52'
-        assert dates[-1]['start'] == '20171225'
-        assert dates[-1]['end'] == '20171231'
+        weeks = tc.week_range('2017-12-08', '2017-12-31', return_type='str', return_format='%Y%m%d')
+        weeks = [week for week in weeks]
+        assert weeks[-1]['week'] == '2017W52'
+        assert weeks[-1]['start'] == '20171225'
+        assert weeks[-1]['end'] == '20171231'
 
-        dates = tc.week_range('20171208', '20171231', format='%Y%m%d', return_type='str')
-        dates = [date for date in dates]
-        assert dates[-1]['week'] == '2017W52'
-        assert dates[-1]['start'] == '20171225'
-        assert dates[-1]['end'] == '20171231'
+        weeks = tc.week_range('20171208', '20171231', format='%Y%m%d', return_type='str')
+        weeks = [week for week in weeks]
+        assert weeks[-1]['week'] == '2017W52'
+        assert weeks[-1]['start'] == '20171225'
+        assert weeks[-1]['end'] == '20171231'
+
+    def test_month_range(self):
+        months = tc.month_range('2017-12-08', '2017-12-31')
+        assert isinstance(months, types.GeneratorType)
+        months = [month for month in months]
+        assert isinstance(months[0], Month)
+        assert months[0] == Month(2017, 12)
+        assert months[-1] == Month(2017, 12)
+        assert len(months) == 1
+
+        months = tc.month_range('2017-12-08', '2017-12-31', return_type='string')
+        months = [month for month in months]
+        assert months[-1]['month'] == '2017-12'
+        assert months[-1]['start'] == '2017-12-01'
+        assert months[-1]['end'] == '2017-12-31'
+
+        months = tc.month_range('2017-12-08', '2017-12-31', return_type='str', return_format='%Y%m%d')
+        months = [month for month in months]
+        assert months[-1]['month'] == '2017-12'
+        assert months[-1]['start'] == '20171201'
+        assert months[-1]['end'] == '20171231'
+
+        months = tc.month_range('20171208', '20171231', format='%Y%m%d', return_type='str')
+        months = [month for month in months]
+        assert months[-1]['month'] == '2017-12'
+        assert months[-1]['start'] == '20171201'
+        assert months[-1]['end'] == '20171231'

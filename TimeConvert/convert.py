@@ -13,6 +13,7 @@ from dateutil.tz import tz
 from isoweek import Week
 
 from .compat import basestring, is_py2
+from .month import Month
 
 
 class TimeConvertTools(object):
@@ -623,8 +624,28 @@ class TimeConvertTools(object):
             for n in range(int(end_week - start_week) + 1):
                 yield start_week + n
 
+    def month_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        start_month = Month.from_date(start_date)
+        end_month = Month.from_date(end_date)
+        if return_type in ['string', 'str']:
+            for n in range(int(end_month - start_month) + 1):
+                current_month = start_month + n
+                yield {
+                    'month': str(current_month),
+                    'start': current_month.start_date.strftime(return_format or format or self.DATE_FORMAT),
+                    'end': current_month.end_date.strftime(return_format or format or self.DATE_FORMAT),
+                }
+        else:
+            for n in range(int(end_month - start_month) + 1):
+                yield start_month + n
+
     daterange = date_range
     weekrange = week_range
+    monthrange = month_range
 
 
 TimeConvert = TimeConvertTools()
