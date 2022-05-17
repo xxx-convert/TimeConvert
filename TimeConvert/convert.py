@@ -601,7 +601,7 @@ class TimeConvertTools(object):
             end_date = end_date + datetime.timedelta(1)
         if return_type in ['string', 'str']:
             for n in range(int((end_date - start_date).days)):
-                yield (start_date + datetime.timedelta(n)).strftime(return_format or format or self.DATE_FORMAT)
+                yield self.datetime_to_string(start_date + datetime.timedelta(n), return_format or format or self.DATE_FORMAT)
         else:
             for n in range(int((end_date - start_date).days)):
                 yield start_date + datetime.timedelta(n)
@@ -618,8 +618,8 @@ class TimeConvertTools(object):
                 current_week = start_week + n
                 yield {
                     'week': current_week.isoformat(),
-                    'start': current_week.monday().strftime(return_format or format or self.DATE_FORMAT),
-                    'end': current_week.sunday().strftime(return_format or format or self.DATE_FORMAT),
+                    'start': self.datetime_to_string(current_week.monday(), return_format or format or self.DATE_FORMAT),
+                    'end': self.datetime_to_string(current_week.sunday(), return_format or format or self.DATE_FORMAT),
                 }
         else:
             for n in range(int(end_week - start_week) + 1):
@@ -637,8 +637,8 @@ class TimeConvertTools(object):
                 current_month = start_month + n
                 yield {
                     'month': str(current_month),
-                    'start': current_month.start_date.strftime(return_format or format or self.DATE_FORMAT),
-                    'end': current_month.end_date.strftime(return_format or format or self.DATE_FORMAT),
+                    'start': self.datetime_to_string(current_month.start_date, return_format or format or self.DATE_FORMAT),
+                    'end': self.datetime_to_string(current_month.end_date, return_format or format or self.DATE_FORMAT),
                 }
         else:
             for n in range(int(end_month - start_month) + 1):
@@ -656,8 +656,8 @@ class TimeConvertTools(object):
                 current_quarter = start_quarter + n
                 yield {
                     'quarter': current_quarter.isoformat(),
-                    'start': current_quarter.start_date.strftime(return_format or format or self.DATE_FORMAT),
-                    'end': current_quarter.end_date.strftime(return_format or format or self.DATE_FORMAT),
+                    'start': self.datetime_to_string(current_quarter.start_date, return_format or format or self.DATE_FORMAT),
+                    'end': self.datetime_to_string(current_quarter.end_date, return_format or format or self.DATE_FORMAT),
                 }
         else:
             for n in range(int(end_quarter - start_quarter) + 1):
