@@ -246,3 +246,5 @@ Method
     def week_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='isoweek', return_format=None):
 
     def month_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+
+    def quarter_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):

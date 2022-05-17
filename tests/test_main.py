@@ -6,7 +6,7 @@ import types
 from dateutil.tz import tz
 from isoweek import Week
 
-from TimeConvert import Month
+from TimeConvert import Month, Quarter
 from TimeConvert import TimeConvert as tc
 
 
@@ -317,3 +317,30 @@ class TestTimeConvertCommands(object):
         assert months[-1]['month'] == '2017-12'
         assert months[-1]['start'] == '20171201'
         assert months[-1]['end'] == '20171231'
+
+    def test_quarter_range(self):
+        quarters = tc.quarter_range('2017-12-08', '2017-12-31')
+        assert isinstance(quarters, types.GeneratorType)
+        quarters = [quarter for quarter in quarters]
+        assert isinstance(quarters[0], Quarter)
+        assert quarters[0] == Quarter(2017, 4)
+        assert quarters[-1] == Quarter(2017, 4)
+        assert len(quarters) == 1
+
+        quarters = tc.quarter_range('2017-12-08', '2017-12-31', return_type='string')
+        quarters = [quarter for quarter in quarters]
+        assert quarters[-1]['quarter'] == '2017Q4'
+        assert quarters[-1]['start'] == '2017-10-01'
+        assert quarters[-1]['end'] == '2017-12-31'
+
+        quarters = tc.quarter_range('2017-12-08', '2017-12-31', return_type='str', return_format='%Y%m%d')
+        quarters = [quarter for quarter in quarters]
+        assert quarters[-1]['quarter'] == '2017Q4'
+        assert quarters[-1]['start'] == '20171001'
+        assert quarters[-1]['end'] == '20171231'
+
+        quarters = tc.quarter_range('20171208', '20171231', format='%Y%m%d', return_type='str')
+        quarters = [quarter for quarter in quarters]
+        assert quarters[-1]['quarter'] == '2017Q4'
+        assert quarters[-1]['start'] == '20171001'
+        assert quarters[-1]['end'] == '20171231'
