@@ -7,19 +7,32 @@ import datetime
 import locale
 import time
 
-import pytz
 import tzlocal
 from dateutil.relativedelta import relativedelta
+from dateutil.tz import tz
+from isoweek import Week
 
 from .compat import basestring, is_py2
+from .month import Month
+from .quarter import Quarter
 
 
-class TimeConvert:
+class TimeConvertTools(object):
+    def __get_base_time_zone(self):
+        if hasattr(tzlocal, 'get_localzone_name'):
+            return tzlocal.get_localzone_name()
+        tz_localzone = tzlocal.get_localzone()
+        if hasattr(tz_localzone, 'unwrap_shim'):
+            tz_localzone = tz_localzone.unwrap_shim()
+        return tz_localzone.key if hasattr(tz_localzone, 'key') else tz_localzone.zone
+
     def __init__(self, timezone=None, format=None):
-        self.BASE_TIME_ZONE = tzlocal.get_localzone().zone
-        self.BASE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.BASE_TIME_ZONE = self.__get_base_time_zone()
+        self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.DATE_FORMAT = '%Y-%m-%d'
+        self.WEEK_FORMAT = '%W'
         self.TIME_ZONE = timezone or self.BASE_TIME_ZONE
-        self.TIME_FORMAT = format or self.BASE_TIME_FORMAT
+        self.TIME_FORMAT = format or self.DATETIME_FORMAT
         self.SECOND_MILLISECOND = 10 ** 3
         self.SECOND_MICROSECOND = 10 ** 6
 
@@ -30,6 +43,9 @@ class TimeConvert:
 
     def format(self, format=None):
         return format or self.TIME_FORMAT
+
+    def date_format(self, format=None):
+        return format or self.DATE_FORMAT
 
     # PRIVATE
 
@@ -73,7 +89,7 @@ class TimeConvert:
     # BASIC DATETIME
 
     def basic_utc_datetime(self, ms=True):
-        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=pytz.utc), ms=ms)
+        return self.__remove_ms_or_not(datetime.datetime.utcnow().replace(tzinfo=tz.UTC), ms=ms)
 
     def basic_local_datetime(self, ms=True, timezone=None):
         # In[1]: import time
@@ -92,7 +108,7 @@ class TimeConvert:
         return self.__remove_ms_or_not(self.to_local_datetime(self.basic_utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def is_utc_datetime(self, dt):
-        return dt.tzinfo == pytz.utc
+        return dt.tzinfo == tz.UTC
 
     def is_local_datetime(self, dt, local_tz=None):
         """
@@ -114,7 +130,7 @@ class TimeConvert:
         # In [4]: str(pytz.timezone('Asia/Shanghai')) == str(tc.local_datetime().tzinfo)
         # Out[4]: True
 
-        return str(dt.tzinfo) == str(None if local_tz == -1 else self.timezone(local_tz))
+        return str(dt.tzinfo) == str(None if local_tz == -1 else tz.gettz(self.timezone(local_tz)))
 
     def to_utc_datetime(self, dt, timezone=None):
         if self.is_utc_datetime(dt):
@@ -123,19 +139,20 @@ class TimeConvert:
             dt = self.make_naive(dt)
         except ValueError:
             pass
-        local_tz = pytz.timezone(self.timezone(timezone))
-        local_dt = local_tz.localize(dt, is_dst=None)
-        return local_dt.astimezone(pytz.utc)
+        tzinfo = tz.gettz(self.timezone(timezone))
+        local_dt = dt.replace(tzinfo=tzinfo)
+        return local_dt.astimezone(tz.UTC)
 
     def to_local_datetime(self, dt, timezone=None):
         tzname = self.timezone(timezone)
         if self.is_local_datetime(dt, local_tz=tzname):
             return dt
-        local_tz = pytz.timezone(tzname)
-        utc_dt = dt.replace(tzinfo=pytz.utc)
-        return utc_dt.astimezone(local_tz)
+        tzinfo = tz.gettz(tzname)
+        utc_dt = dt.replace(tzinfo=tz.UTC)
+        return utc_dt.astimezone(tzinfo)
 
     # DATE
+
     def utc_date(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
         return self.datetime_to_date(self.utc_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
@@ -143,10 +160,11 @@ class TimeConvert:
         return self.datetime_to_date(self.local_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
     def datetime_to_date(self, dt):
-        return datetime.datetime.date(dt)
+        # return datetime.datetime.date(dt)
+        return dt.date()
 
     def is_the_same_day(self, dt1, dt2):
-        return self.local_string(dt1, format='%Y-%m-%d') == self.local_string(dt2, format='%Y-%m-%d')
+        return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
 
     # DATETIME
 
@@ -237,6 +255,24 @@ class TimeConvert:
         final_dt = self.to_local_datetime(dt=utc_dt) if not final_dt and utc_dt else final_dt
         return self.datetime_to_string(self.local_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
+    def utc_datetime_string(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.utc_string(dt=dt, format=self.DATETIME_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def local_datetime_string(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.local_string(dt=dt, format=self.DATETIME_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def utc_date_string(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.utc_string(dt=dt, format=self.DATE_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def local_date_string(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.local_string(dt=dt, format=self.DATE_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def utc_week_string(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.utc_string(dt=dt, format=self.WEEK_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    def local_week_string(self, dt=None, utc=False, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0, local_dt=None, utc_dt=None, isuc=False):
+        return self.local_string(dt=dt, format=self.WEEK_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
     # TIMESTAMP
 
     def __micro_or_milli(self, s, micro=False, milli=False):
@@ -270,6 +306,47 @@ class TimeConvert:
 
     def seconds_to_milliseconds(self, s):
         return self.__seconds_to_other(s, base=self.SECOND_MILLISECOND)
+
+    # STRING ==> DATE
+
+    def to_date(self, value, format=None):
+        if isinstance(value, datetime.datetime):
+            return value.date()
+        if isinstance(value, datetime.date):
+            return value
+        if isinstance(value, basestring):
+            return self.string_to_date(value, format)
+        return None
+
+    def string_to_date(self, string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.string_to_datetime(string, format).date()
+
+    def string_to_utc_date(self, string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.string_to_utc_datetime(string, format).date()
+
+    def string_to_local_date(self, string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(string, format):
+            return None
+        return self.string_to_local_datetime(string, format).date()
+
+    def utc_string_to_utc_date(self, utc_string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(utc_string, format):
+            return None
+        return self.utc_string_to_utc_datetime(utc_string, format).date()
+
+    def utc_string_to_local_date(self, utc_string, format=None):
+        format = self.date_format(format)
+        if not self.validate_string(utc_string, format):
+            return None
+        return self.utc_string_to_local_datetime(utc_string, format).date()
 
     # STRING ==> DATETIME
 
@@ -319,6 +396,31 @@ class TimeConvert:
         if not self.validate_string(string, format):
             return None
         return self.datetime_to_timestamp(self.string_to_local_datetime(string, format), ms=ms)
+
+    # TIMESTAMP ==> DATETIME
+
+    # local_stamp => utc_datetime - fromtimestamp + to_utc_datetime / utcfromtimestamp
+    # local_stamp => local_datetime - fromtimestamp
+    # utc_stamp => utc_datetime - fromtimestamp
+    # utc_stamp => local_datetime - fromtimestamp + to_local_datetime
+    def timestamp_to_datetime(self, stamp):
+        return datetime.datetime.fromtimestamp(stamp)
+
+    def timestamp_to_utc_datetime(self, stamp):
+        # return datetime.datetime.utcfromtimestamp(stamp)
+        return self.to_utc_datetime(self.timestamp_to_datetime(stamp))
+
+    def timestamp_to_local_datetime(self, stamp):
+        return self.timestamp_to_datetime(stamp)
+
+    def utc_timestamp_to_utc_datetime(self, stamp):
+        # return self.make_aware(self.timestamp_to_datetime(stamp), timezone='UTC')
+        return self.make_aware(self.timestamp_to_datetime(stamp), timezone=self.timezone('UTC'))
+
+    def utc_timestamp_to_local_datetime(self, stamp):
+        return self.to_local_datetime(self.timestamp_to_datetime(stamp))
+
+    # TIMESTAMP ==> AGE
 
     # TIME_DELTA
 
@@ -404,47 +506,40 @@ class TimeConvert:
 
     def is_aware(self, value):
         """
-        Determines if a given datetime.datetime is aware.
-        The logic is described in Python's docs:
-        http://docs.python.org/library/datetime.html#datetime.tzinfo
+        Determine if a given datetime.datetime is aware.
+        The concept is defined in Python's docs:
+        https://docs.python.org/library/datetime.html#datetime.tzinfo
+        Assuming value.tzinfo is either None or a proper datetime.tzinfo,
+        value.utcoffset() implements the appropriate logic.
         """
-        return value.tzinfo is not None and value.tzinfo.utcoffset(value) is not None
+        return value.utcoffset() is not None
 
     def is_naive(self, value):
         """
-        Determines if a given datetime.datetime is naive.
-        The logic is described in Python's docs:
-        http://docs.python.org/library/datetime.html#datetime.tzinfo
+        Determine if a given datetime.datetime is naive.
+        The concept is defined in Python's docs:
+        https://docs.python.org/library/datetime.html#datetime.tzinfo
+        Assuming value.tzinfo is either None or a proper datetime.tzinfo,
+        value.utcoffset() implements the appropriate logic.
         """
-        return value.tzinfo is None or value.tzinfo.utcoffset(value) is None
+        return value.utcoffset() is None
 
     def make_aware(self, value, timezone=None):
-        """
-        Makes a naive datetime.datetime in a given time zone aware.
-        """
-        timezone = pytz.timezone(self.timezone(timezone))
-        if hasattr(timezone, 'localize'):
-            # This method is available for pytz time zones.
-            return timezone.localize(value, is_dst=None)
-        else:
-            # Check that we won't overwrite the timezone of an aware datetime.
-            if self.is_aware(value):
-                raise ValueError('make_aware expects a naive datetime, got %s' % value)
-            # This may be wrong around DST changes!
-        return value.replace(tzinfo=timezone)
+        """Make a naive datetime.datetime in a given time zone aware."""
+        tzinfo = tz.gettz(self.timezone(timezone))
+        # Check that we won't overwrite the timezone of an aware datetime.
+        if self.is_aware(value):
+            raise ValueError('make_aware expects a naive datetime, got %s' % value)
+        # This may be wrong around DST changes!
+        return value.replace(tzinfo=tzinfo)
 
     def make_naive(self, value, timezone=None):
-        """
-        Makes an aware datetime.datetime naive in a given time zone.
-        """
-        timezone = pytz.timezone(self.timezone(timezone))
-        # If `value` is naive, astimezone() will raise a ValueError,
-        # so we don't need to perform a redundant check.
-        value = value.astimezone(timezone)
-        if hasattr(timezone, 'normalize'):
-            # This method is available for pytz time zones.
-            value = timezone.normalize(value)
-        return value.replace(tzinfo=None)
+        """Make an aware datetime.datetime naive in a given time zone."""
+        tzinfo = tz.gettz(self.timezone(timezone))
+        # Emulate the behavior of astimezone() on Python < 3.6.
+        if self.is_naive(value):
+            raise ValueError('make_naive() cannot be applied to a naive datetime')
+        return value.astimezone(tzinfo).replace(tzinfo=None)
 
     # PAST vs. FUTURE
 
@@ -487,6 +582,7 @@ class TimeConvert:
         return None
 
     # YEAR/MONTH/DAY
+
     def year(self, dt=None, utc=False, timezone=None, idx=0):
         return self.__datetime(dt=self.several_time_coming(dt=dt, utc=utc, timezone=timezone, years=idx), utc=utc).year
 
@@ -510,5 +606,100 @@ class TimeConvert:
             return td.days * 86400 + td.seconds
         return ((td.days * 86400 + td.seconds) * self.SECOND_MICROSECOND + td.microseconds) / self.SECOND_MICROSECOND
 
+    def date_range(self, start_date, end_date, include_end=None, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        if include_end:
+            end_date = end_date + datetime.timedelta(1)
+        if return_type in ['string', 'str']:
+            for n in range(int((end_date - start_date).days)):
+                yield self.datetime_to_string(start_date + datetime.timedelta(n), return_format or format or self.DATE_FORMAT)
+        else:
+            for n in range(int((end_date - start_date).days)):
+                yield start_date + datetime.timedelta(n)
 
-TimeConvert = TimeConvert()
+    def week_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='isoweek', return_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        start_week = Week.withdate(start_date)
+        end_week = Week.withdate(end_date)
+        if return_type in ['string', 'str']:
+            for n in range(int(end_week - start_week) + 1):
+                current_week = start_week + n
+                yield {
+                    'week': current_week.isoformat(),
+                    'start': self.datetime_to_string(current_week.monday(), return_format or format or self.DATE_FORMAT),
+                    'end': self.datetime_to_string(current_week.sunday(), return_format or format or self.DATE_FORMAT),
+                }
+        else:
+            for n in range(int(end_week - start_week) + 1):
+                yield start_week + n
+
+    def month_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        start_month = Month.from_date(start_date)
+        end_month = Month.from_date(end_date)
+        if return_type in ['string', 'str']:
+            for n in range(int(end_month - start_month) + 1):
+                current_month = start_month + n
+                yield {
+                    'month': str(current_month),
+                    'start': self.datetime_to_string(current_month.start_date, return_format or format or self.DATE_FORMAT),
+                    'end': self.datetime_to_string(current_month.end_date, return_format or format or self.DATE_FORMAT),
+                }
+        else:
+            for n in range(int(end_month - start_month) + 1):
+                yield start_month + n
+
+    def quarter_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        start_quarter = Quarter.from_date(start_date)
+        end_quarter = Quarter.from_date(end_date)
+        if return_type in ['string', 'str']:
+            for n in range(int(end_quarter - start_quarter) + 1):
+                current_quarter = start_quarter + n
+                yield {
+                    'quarter': current_quarter.isoformat(),
+                    'start': self.datetime_to_string(current_quarter.start_date, return_format or format or self.DATE_FORMAT),
+                    'end': self.datetime_to_string(current_quarter.end_date, return_format or format or self.DATE_FORMAT),
+                }
+        else:
+            for n in range(int(end_quarter - start_quarter) + 1):
+                yield start_quarter + n
+
+    daterange = date_range
+    weekrange = week_range
+    monthrange = month_range
+    quarterrange = quarter_range
+
+    def isoweekdaycount(self, start_date, end_date, isoweekday=7, format=None, start_date_format=None, end_date_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        weeks = self.datetime_delta(start_date, end_date).get('weeks')
+        # datetime.datetime.now().isoweekday()  # 返回1-7，代表周一到周日，当前时间所在本周第几天
+        # datetime.datetime.now().weekday()  # 返回的0-6，代表周一到周日
+        # 标准格式 %w 中，1-6表示周一到周六，0代表周日
+        start_isoweekday = start_date.isoweekday()
+        end_isoweekday = end_date.isoweekday()
+        if end_isoweekday >= start_isoweekday:
+            if start_isoweekday <= isoweekday <= end_isoweekday:
+                weeks += 1
+        else:
+            if start_isoweekday <= isoweekday or end_isoweekday >= isoweekday:
+                weeks += 1
+        return weeks
+
+
+TimeConvert = TimeConvertTools()
