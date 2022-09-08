@@ -131,6 +131,8 @@ Method
 
     # STRING ==> DATE
 
+    def to_date(self, value, format=None):
+
     def string_to_date(self, string, format=None):
 
     def string_to_utc_date(self, string, format=None):
@@ -248,3 +250,5 @@ Method
     def month_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
 
     def quarter_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+
+    def isoweekdaycount(self, start_date, end_date, isoweekday=7, format=None, start_date_format=None, end_date_format=None):
