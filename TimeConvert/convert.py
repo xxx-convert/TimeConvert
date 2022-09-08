@@ -309,6 +309,15 @@ class TimeConvertTools(object):
 
     # STRING ==> DATE
 
+    def to_date(self, value, format=None):
+        if isinstance(value, datetime.datetime):
+            return value.date()
+        if isinstance(value, datetime.date):
+            return value
+        if isinstance(value, basestring):
+            return self.string_to_date(value, format)
+        return None
+
     def string_to_date(self, string, format=None):
         format = self.date_format(format)
         if not self.validate_string(string, format):

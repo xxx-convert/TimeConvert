@@ -158,6 +158,12 @@ class TestTimeConvertCommands(object):
 
     # STRING ==> DATE
 
+    def test_to_date(self):
+        assert tc.to_date(datetime.datetime(2017, 12, 8, 15, 27, 0)) == datetime.date(2017, 12, 8)
+        assert tc.to_date(datetime.date(2017, 12, 8)) == datetime.date(2017, 12, 8)
+        assert tc.to_date('2017-12-08') == datetime.date(2017, 12, 8)
+        assert tc.to_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
+
     def test_string_to_date(self):
         assert tc.string_to_date('2017-12-08') == datetime.date(2017, 12, 8)
         assert tc.string_to_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
