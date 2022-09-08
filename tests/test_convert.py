@@ -344,3 +344,10 @@ class TestTimeConvertCommands(object):
         assert quarters[-1]['quarter'] == '2017Q4'
         assert quarters[-1]['start'] == '20171001'
         assert quarters[-1]['end'] == '20171231'
+
+    def test_isoweekdaycount(self):
+        assert tc.isoweekdaycount('2017-12-08', '2017-12-31') == 4
+        assert tc.isoweekdaycount('2017-12-06', '2017-12-06', 3) == 1
+        assert tc.isoweekdaycount('2017-12-08', '2017-12-31', 3) == 3
+        assert tc.isoweekdaycount('2017-12-08', '2018-01-03', 3) == 4
+        assert tc.isoweekdaycount('2017-12-06', '2018-01-03', 3) == 5

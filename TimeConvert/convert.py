@@ -668,5 +668,24 @@ class TimeConvertTools(object):
     monthrange = month_range
     quarterrange = quarter_range
 
+    def isoweekdaycount(self, start_date, end_date, isoweekday=7, format=None, start_date_format=None, end_date_format=None):
+        if isinstance(start_date, str):
+            start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
+        if isinstance(end_date, str):
+            end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
+        weeks = self.datetime_delta(start_date, end_date).get('weeks')
+        # datetime.datetime.now().isoweekday()  # 返回1-7，代表周一到周日，当前时间所在本周第几天
+        # datetime.datetime.now().weekday()  # 返回的0-6，代表周一到周日
+        # 标准格式 %w 中，1-6表示周一到周六，0代表周日
+        start_isoweekday = start_date.isoweekday()
+        end_isoweekday = end_date.isoweekday()
+        if end_isoweekday >= start_isoweekday:
+            if start_isoweekday <= isoweekday <= end_isoweekday:
+                weeks += 1
+        else:
+            if start_isoweekday <= isoweekday or end_isoweekday >= isoweekday:
+                weeks += 1
+        return weeks
+
 
 TimeConvert = TimeConvertTools()
