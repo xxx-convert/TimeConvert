@@ -461,18 +461,13 @@ class TimeConvertTools(object):
         return abs(min((self.utc_timestamp() if utc else self.local_timestamp()) - stamp, 0))
 
     def datetime_countdown(self, dt):
-        if self.is_aware(dt):
-            dt = dt.astimezone(pytz.UTC)
-            stamp = self.datetime_to_timestamp(dt)
-        else:
-            stamp = self.datetime_to_timestamp(dt) - time.timezone
-        return self.timestamp_countdown(stamp)
+        return self.timestamp_countdown(self.datetime_to_timestamp(self.to_utc_datetime(dt)))
 
-    def string_countdown(self, string, format=None, utc=True):
+    def string_countdown(self, string, format=None):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.timestamp_countdown(self.string_to_timestamp(string, format), utc=utc)
+        return self.timestamp_countdown(self.string_to_utc_timestamp(string, format))
 
     # MIDNIGHT
 

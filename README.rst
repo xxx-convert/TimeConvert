@@ -189,9 +189,9 @@ Method
 
     def timestamp_countdown(self, stamp, utc=True):
 
-    def datetime_countdown(self, dt, utc=True):
+    def datetime_countdown(self, dt):
 
-    def string_countdown(self, string, format=None, utc=True):
+    def string_countdown(self, string, format=None):
 
     # MIDNIGHT
 
