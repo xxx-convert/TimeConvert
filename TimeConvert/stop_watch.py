@@ -236,7 +236,7 @@ class StopWatch(BaseWatch):
             running_time = self.get_total_time_nanos()
         else:
             running_time = round(self.get_total_time_seconds(), 4)
-        return f'stopWatch [{self.__unique_id}]: running time = {running_time} {time_type.value}'
+        return f'StopWatch [{self.__unique_id}]: running time = {running_time} {time_type.value}'
 
     def pretty_print(self, time_type: TimeType = None) -> str:
         """
