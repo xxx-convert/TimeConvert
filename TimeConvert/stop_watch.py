@@ -98,8 +98,8 @@ class StopWatch(BaseWatch):
 
     def start(self, task_name: str = '') -> NoReturn:
         """
-        生成一个计时对象并开始计时
-        :param task_name: 计时任务名称
+        开始计时
+        :param task_name: 计时任务(计时点)的名称
         :return
         """
         if self.__current_task_name is not None:
@@ -108,9 +108,10 @@ class StopWatch(BaseWatch):
         self.__current_task_name = task_name
         self.__start_time_timestamp = time.time()
 
-    def stop(self):
+    def stop(self) -> NoReturn:
         """
         停止任务计时
+        :return
         """
         if self.__current_task_name is None:
             raise ValueError('Can\'t stop StopWatch: it\'s not running')
@@ -214,6 +215,10 @@ class StopWatch(BaseWatch):
         return self.__task_count
 
     def get_task_info(self) -> List[TaskInfo]:
+        """
+        获取当前stop_watch对象记录的全部任务
+        :return:
+        """
         if not self.__keep_task_list:
             raise RuntimeError('task info is not being kept!')
         return copy.deepcopy(self.__task_info)
@@ -274,17 +279,3 @@ class StopWatch(BaseWatch):
                 sb.write(f'{task_info.get_time_nanos()} ns')
                 sb.write(f' = {round(task_info.get_time_seconds() / self.get_total_time_seconds(), 2)}%')
         return sb.getvalue()
-
-
-if __name__ == '__main__':
-    sw = StopWatch('我是一个计时器', time_type=TimeType.second)
-    sw.start('我是计时点1')
-    time.sleep(1)
-    # 计时点1计时结束
-    sw.stop()
-
-    sw.start('我是计时点2')
-    time.sleep(2)
-    # 计时点2计时结束
-    sw.stop()
-    print(sw.pretty_print())
