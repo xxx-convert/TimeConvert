@@ -243,7 +243,7 @@ Method
 
     def total_seconds(self, td, ms=True):  # timedelta
 
-    def date_range(self, start_date, end_date, include_end=None, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+    def date_range(self, start_date, end_date, include_end=False, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
 
     def week_range(self, start_date, end_date, format=None, start_date_format=None, end_date_format=None, return_type='isoweek', return_format=None):
 

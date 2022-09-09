@@ -601,7 +601,7 @@ class TimeConvertTools(object):
             return td.days * 86400 + td.seconds
         return ((td.days * 86400 + td.seconds) * self.SECOND_MICROSECOND + td.microseconds) / self.SECOND_MICROSECOND
 
-    def date_range(self, start_date, end_date, include_end=None, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
+    def date_range(self, start_date, end_date, include_end=False, format=None, start_date_format=None, end_date_format=None, return_type='date', return_format=None):
         if isinstance(start_date, str):
             start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
         if isinstance(end_date, str):
