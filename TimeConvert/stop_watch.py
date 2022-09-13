@@ -6,14 +6,14 @@ import copy
 import io
 import time
 from enum import Enum
-from typing import NoReturn, List
+from typing import List, NoReturn
 
 
 class TimeType(Enum):
+    # 秒
+    second = 's'
     # 毫秒
     millisecond = 'ms'
-    # 秒
-    second = 's '
     # 纳秒
     nanosecond = 'ns'
 
