@@ -4,7 +4,6 @@ from __future__ import division
 
 import calendar
 import datetime
-import locale
 import time
 from typing import Any, Callable, Dict, Optional, TypeVar, Union
 
@@ -13,7 +12,6 @@ from dateutil.relativedelta import relativedelta
 from dateutil.tz import tz
 from isoweek import Week
 
-from .compat import basestring, is_py2
 from .month import Month
 from .quarter import Quarter
 
@@ -207,18 +205,12 @@ class TimeConvertTools(object):
     def datetime_to_unicode_string(self, dt: datetime.datetime, format: Optional[str] = None) -> str:
         format = self.format(format)
         # Refer: https://github.com/sphinx-doc/sphinx/blob/8ae43b9fd/sphinx/util/osutil.py#L164
-        if is_py2:
-            # if a locale is set, the time strings are encoded in the encoding
-            # given by LC_TIME; if that is available, use it
-            enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
-            return dt.strftime(unicode(format).encode(enc)).decode(enc)
-        else:  # Py3
-            # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-            # http://bugs.python.org/issue8304
-            try:
-                return dt.strftime(format)
-            except UnicodeEncodeError:
-                return dt.strftime(format.encode('unicode-escape').decode()).encode().decode('unicode-escape')
+        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
+        # http://bugs.python.org/issue8304
+        try:
+            return dt.strftime(format)
+        except UnicodeEncodeError:
+            return dt.strftime(format.encode('unicode-escape').decode()).encode().decode('unicode-escape')
 
     def datetime_to_string(self, dt: datetime.datetime, format: Optional[str] = None, isuc: bool = False) -> str:
         if isuc:
@@ -318,7 +310,7 @@ class TimeConvertTools(object):
             return value.date()
         if isinstance(value, datetime.date):
             return value
-        if isinstance(value, basestring):
+        if isinstance(value, (str, bytes)):
             return self.string_to_date(value, format)
         return None
 
@@ -551,7 +543,7 @@ class TimeConvertTools(object):
         if isinstance(value, datetime.datetime):
             return (value if utc else self.to_local_datetime(value)) < base_dt
 
-        if isinstance(value, basestring):
+        if isinstance(value, (str, bytes)):
             utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(value, format=format)
             return utc_dt and utc_dt < base_dt
 
@@ -570,7 +562,7 @@ class TimeConvertTools(object):
         if isinstance(value, datetime.datetime):
             return (value if utc else self.to_local_datetime(value)) > base_dt
 
-        if isinstance(value, basestring):
+        if isinstance(value, (str, bytes)):
             utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(value, format=format)
             return utc_dt and utc_dt > base_dt
 
