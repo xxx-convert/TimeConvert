@@ -1,7 +1,3 @@
-# @Time    : 2022/9/9 6:02 下午
-# @Author  : baii
-# @File    : stop_watch
-# @Use     : 代码执行时间计时器
 import copy
 import io
 import time

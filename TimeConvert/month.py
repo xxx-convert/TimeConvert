@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Class file for a Month object.
 Provides various utilities for generating, manipulating, and displaying
 months.
