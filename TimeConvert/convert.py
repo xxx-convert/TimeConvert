@@ -689,4 +689,4 @@ class TimeConvertTools(object):
         return weeks
 
 
-TimeConvert = TimeConvertTools()
+TC = tc = TimeConvert = TimeConvertTools()
