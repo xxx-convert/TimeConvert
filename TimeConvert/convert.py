@@ -274,11 +274,11 @@ class TimeConvertTools(object):
             return self.seconds_to_milliseconds(s)
         return s
 
-    def utc_timestamp(self, utc_dt: Optional[datetime.datetime] = None, ms: bool = False, micro: bool = False, milli: bool = False) -> int:
-        return self.__micro_or_milli(self.datetime_to_timestamp(self.__utc_datetime(utc_dt), ms=ms), micro=micro, milli=milli)
+    def utc_timestamp(self, utc_dt: Optional[datetime.datetime] = None, ms: bool = False, micro: bool = False, milli: bool = False, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> int:
+        return self.__micro_or_milli(self.datetime_to_timestamp(self.__utc_datetime(utc_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms), micro=micro, milli=milli)
 
-    def local_timestamp(self, local_dt: Optional[datetime.datetime] = None, ms: bool = False, micro: bool = False, milli: bool = False) -> int:
-        return self.__micro_or_milli(self.datetime_to_timestamp(self.__local_datetime(local_dt), ms=ms), micro=micro, milli=milli)
+    def local_timestamp(self, local_dt: Optional[datetime.datetime] = None, ms: bool = False, micro: bool = False, milli: bool = False, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> int:
+        return self.__micro_or_milli(self.datetime_to_timestamp(self.__local_datetime(local_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms), micro=micro, milli=milli)
 
     def datetime_to_timestamp(self, dt: datetime.datetime, ms: bool = False) -> int:
         # http://stackoverflow.com/questions/26161156/python-converting-string-to-timestamp-with-microseconds

@@ -146,10 +146,14 @@ class TestTimeConvertCommands(object):
     def test_utc_timestamp(self):
         assert isinstance(tc.utc_timestamp(), int)
         assert isinstance(tc.utc_timestamp(ms=True), float)
+        assert isinstance(tc.utc_timestamp(days=1), int)
+        assert isinstance(tc.utc_timestamp(ms=True, days=1), float)
 
     def test_local_timestamp(self):
         assert isinstance(tc.local_timestamp(), int)
         assert isinstance(tc.local_timestamp(ms=True), float)
+        assert isinstance(tc.local_timestamp(days=1), int)
+        assert isinstance(tc.local_timestamp(ms=True, days=1), float)
 
     def test_datetime_to_timestamp(self):
         dt = tc.utc_datetime()
