@@ -22,6 +22,16 @@ Usage
     tc.utc_timestamp()
 
 
+Comparison
+==========
+::
+
++------------+------------+-----------+
+| Function Points   | TimeConvert   | Other  |
++============+============+===========+
+| TimeStamp | tc.local_timestamp(ms=True)   | time.time()  |
++------------+------------+-----------+
+
 Variable
 ========
 
