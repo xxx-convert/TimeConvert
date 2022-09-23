@@ -29,6 +29,18 @@ class TimeConvertTools(object):
         self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.DATE_FORMAT = '%Y-%m-%d'
         self.WEEK_FORMAT = '%W'
+        self.WEEK_FORMAT_U = '%U'
+        self.WEEK_FORMAT_W = '%W'
+        self.WEEK_FORMAT_ISO = 'ISO'
+        self.MODE_WEEK_FORMAT = {
+            0: self.WEEK_FORMAT_U,
+            5: self.WEEK_FORMAT_W,
+            3: self.WEEK_FORMAT_ISO,
+        }
+        self.LEN_FORMAT = {
+            19: self.DATETIME_FORMAT,
+            10: self.DATE_FORMAT,
+        }
         self.TIME_ZONE = timezone or self.BASE_TIME_ZONE
         self.TIME_FORMAT = format or self.DATETIME_FORMAT
         self.SECOND_MILLISECOND = 10 ** 3
@@ -44,6 +56,11 @@ class TimeConvertTools(object):
 
     def date_format(self, format: Optional[str] = None) -> str:
         return format or self.DATE_FORMAT
+
+    def value_format(self, value: Optional[str] = None, format: Optional[str] = None) -> str:
+        if format:
+            return format
+        return self.LEN_FORMAT.get(len(value))
 
     # PRIVATE
 
@@ -149,32 +166,6 @@ class TimeConvertTools(object):
         utc_dt = dt.replace(tzinfo=tz.UTC)
         return utc_dt.astimezone(tzinfo)
 
-    # DATE
-
-    def utc_date(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
-        return self.datetime_to_date(self.utc_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
-
-    def local_date(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
-        return self.datetime_to_date(self.local_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
-
-    def datetime_to_date(self, dt: datetime.datetime) -> datetime.date:
-        # return datetime.datetime.date(dt)
-        return dt.date()
-
-    def to_date(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None) -> Optional[datetime.date]:
-        if isinstance(value, datetime.datetime):
-            return self.datetime_to_date(value)
-        if isinstance(value, datetime.date):
-            return value
-        if isinstance(value, (str, bytes)):
-            return self.string_to_date(value, format)
-        return None
-
-    # def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
-    #     return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
-    def is_the_same_day(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> bool:
-        return self.to_date(value1, format=format1 or format) == self.to_date(value2, format=format2 or format)
-
     # DATETIME
 
     def yesterday_utc_datetime(self, ms: bool = True) -> datetime.datetime:
@@ -207,8 +198,59 @@ class TimeConvertTools(object):
     def local_datetime(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
         return self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
 
+    # DATE
+
+    def utc_date(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+        return self.datetime_to_date(self.utc_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
+
+    def local_date(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+        return self.datetime_to_date(self.local_datetime(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
+
+    def datetime_to_date(self, dt: datetime.datetime) -> datetime.date:
+        # return datetime.datetime.date(dt)
+        return dt.date()
+
+    def to_date(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, idx: int = 0) -> Optional[datetime.date]:
+        if isinstance(value, datetime.datetime):
+            date = self.datetime_to_date(value)
+        elif isinstance(value, datetime.date):
+            date = value
+        elif isinstance(value, (str, bytes)):
+            date = self.string_to_date(value, format)
+        else:
+            return None
+        return date + datetime.timedelta(days=idx)
+
+    # def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
+    #     return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
+    def is_the_same_day(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> bool:
+        return self.to_date(value1, format=format1 or format) == self.to_date(value2, format=format2 or format)
+
+    # WEEK
+
+    def utc_week(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
+        week_format = self.MODE_WEEK_FORMAT.get(mode, self.WEEK_FORMAT_ISO)
+        if week_format != self.WEEK_FORMAT_ISO:
+            return int(self.utc_string(dt=dt, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
+        return Week.withdate(self.utc_date(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
+
+    def local_week(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
+        week_format = self.MODE_WEEK_FORMAT.get(mode, self.WEEK_FORMAT_ISO)
+        if week_format != self.WEEK_FORMAT_ISO:
+            return int(self.local_string(dt=dt, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
+        return Week.withdate(self.local_date(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
+
+    def to_week(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, idx: int = 0) -> Optional[Week]:
+        date = self.to_date(value, format=format)
+        if not date:
+            return None
+        return Week.withdate(date) + idx
+
+    to_isoweek = to_week
+
     # STRING
 
+    # DATETIME_STRING
     def datetime_to_unicode_string(self, dt: datetime.datetime, format: Optional[str] = None) -> str:
         format = self.format(format)
         # Refer: https://github.com/sphinx-doc/sphinx/blob/8ae43b9fd/sphinx/util/osutil.py#L164
@@ -264,17 +306,19 @@ class TimeConvertTools(object):
     def local_datetime_string(self, dt: Optional[datetime.datetime] = None, format: Optional[str] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
         return self.local_string(dt=dt, format=self.format(format), utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
 
+    # DATE_STRING
     def utc_date_string(self, dt: Optional[datetime.datetime] = None, format: Optional[str] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
         return self.utc_string(dt=dt, format=self.date_format(format), utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
 
     def local_date_string(self, dt: Optional[datetime.datetime] = None, format: Optional[str] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
         return self.local_string(dt=dt, format=self.date_format(format), utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
 
-    def utc_week_string(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
-        return self.utc_string(dt=dt, format=self.WEEK_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+    # WEEK_STRING
+    def utc_week_string(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
+        return str(self.utc_week(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
-    def local_week_string(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
-        return self.local_string(dt=dt, format=self.WEEK_FORMAT, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+    def local_week_string(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
+        return str(self.local_week(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
     # TIMESTAMP
 
@@ -313,31 +357,31 @@ class TimeConvertTools(object):
     # STRING ==> DATE
 
     def string_to_date(self, string: str, format: Optional[str] = None) -> Optional[datetime.date]:
-        format = self.date_format(format)
+        format = self.value_format(string, format)
         if not self.validate_string(string, format):
             return None
         return self.string_to_datetime(string, format).date()
 
     def string_to_utc_date(self, string: str, format: Optional[str] = None) -> Optional[datetime.date]:
-        format = self.date_format(format)
+        format = self.value_format(string, format)
         if not self.validate_string(string, format):
             return None
         return self.string_to_utc_datetime(string, format).date()
 
     def string_to_local_date(self, string: str, format: Optional[str] = None) -> Optional[datetime.date]:
-        format = self.date_format(format)
+        format = self.value_format(string, format)
         if not self.validate_string(string, format):
             return None
         return self.string_to_local_datetime(string, format).date()
 
     def utc_string_to_utc_date(self, utc_string: str, format: Optional[str] = None) -> Optional[datetime.date]:
-        format = self.date_format(format)
+        format = self.value_format(utc_string, format)
         if not self.validate_string(utc_string, format):
             return None
         return self.utc_string_to_utc_datetime(utc_string, format).date()
 
     def utc_string_to_local_date(self, utc_string: str, format: Optional[str] = None) -> Optional[datetime.date]:
-        format = self.date_format(format)
+        format = self.value_format(utc_string, format)
         if not self.validate_string(utc_string, format):
             return None
         return self.utc_string_to_local_datetime(utc_string, format).date()
