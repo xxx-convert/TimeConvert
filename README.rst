@@ -57,6 +57,18 @@ Method
 
     def remove_microsecond(self, self, dt):
 
+    # DATE
+
+    def utc_date(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+
+    def local_date(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+
+    def datetime_to_date(self, dt: datetime.datetime) -> datetime.date:
+
+    def to_date(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None) -> Optional[datetime.date]:
+
+    def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
+
     # DATETIME
 
     def utc_datetime(self, dt=None, utc=True, ms=True, timezone=None, years=0, months=0, days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0):
@@ -140,8 +152,6 @@ Method
     def seconds_to_milliseconds(self, s):
 
     # STRING ==> DATE
-
-    def to_date(self, value, format=None):
 
     def string_to_date(self, string, format=None):
 

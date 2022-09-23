@@ -161,8 +161,19 @@ class TimeConvertTools(object):
         # return datetime.datetime.date(dt)
         return dt.date()
 
-    def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
-        return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
+    def to_date(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None) -> Optional[datetime.date]:
+        if isinstance(value, datetime.datetime):
+            return self.datetime_to_date(value)
+        if isinstance(value, datetime.date):
+            return value
+        if isinstance(value, (str, bytes)):
+            return self.string_to_date(value, format)
+        return None
+
+    # def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
+    #     return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
+    def is_the_same_day(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> bool:
+        return self.to_date(value1, format=format1 or format) == self.to_date(value2, format=format2 or format)
 
     # DATETIME
 
@@ -300,15 +311,6 @@ class TimeConvertTools(object):
         return self.__seconds_to_other(s, base=self.SECOND_MILLISECOND)
 
     # STRING ==> DATE
-
-    def to_date(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None) -> Optional[datetime.date]:
-        if isinstance(value, datetime.datetime):
-            return value.date()
-        if isinstance(value, datetime.date):
-            return value
-        if isinstance(value, (str, bytes)):
-            return self.string_to_date(value, format)
-        return None
 
     def string_to_date(self, string: str, format: Optional[str] = None) -> Optional[datetime.date]:
         format = self.date_format(format)
