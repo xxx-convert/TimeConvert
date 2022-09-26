@@ -10,6 +10,7 @@ setup(
     keywords='',
     description='Time Convert for Humans™',
     long_description=open('README.rst').read(),
+    long_description_content_type='text/markdown',
 
     url='https://github.com/xxx-convert/TimeConvert',
 
