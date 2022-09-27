@@ -3,6 +3,7 @@
 import datetime
 import types
 
+import pytest
 from dateutil.tz import tz
 from isoweek import Week
 
@@ -153,12 +154,16 @@ class TestTimeConvertCommands(object):
         assert isinstance(tc.local_week(), int)
 
     def test_to_week(self):
-        assert tc.to_week('2017-12-08 15:27:00') == Week(2017, 49)
-        assert tc.to_week('2017-12-08') == Week(2017, 49)
-        assert tc.to_week(datetime.datetime(2017, 12, 8, 15, 27, 0)) == Week(2017, 49)
-        assert tc.to_week(datetime.date(2017, 12, 8)) == Week(2017, 49)
-        assert tc.to_week('2017-12-08 15:27:00', idx=-1) == Week(2017, 48)
-        assert tc.to_week('2017-12-08 15:27:00', idx=1) == Week(2017, 50)
+        with pytest.raises(ValueError):
+            tc.to_week('2017-12-08 15:27:00', mode=0)
+
+    def test_to_isoweek(self):
+        assert tc.to_isoweek('2017-12-08 15:27:00') == Week(2017, 49)
+        assert tc.to_isoweek('2017-12-08') == Week(2017, 49)
+        assert tc.to_isoweek(datetime.datetime(2017, 12, 8, 15, 27, 0)) == Week(2017, 49)
+        assert tc.to_isoweek(datetime.date(2017, 12, 8)) == Week(2017, 49)
+        assert tc.to_isoweek('2017-12-08 15:27:00', idx=-1) == Week(2017, 48)
+        assert tc.to_isoweek('2017-12-08 15:27:00', idx=1) == Week(2017, 50)
 
     # STRING
 

@@ -240,13 +240,16 @@ class TimeConvertTools(object):
             return int(self.local_string(dt=dt, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
         return Week.withdate(self.local_date(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
 
-    def to_week(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, idx: int = 0) -> Optional[Week]:
+    def to_week(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[Week]:
         date = self.to_date(value, format=format)
         if not date:
             return None
+        if mode != 3:
+            raise ValueError('to_week only support mode equals 3 nowadays')
         return Week.withdate(date) + idx
 
-    to_isoweek = to_week
+    def to_isoweek(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
+        return self.to_week(value, idx=idx, mode=3, format=format)
 
     # STRING
 

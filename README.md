@@ -89,7 +89,9 @@ def utc_week(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms:
 
 def local_week(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
 
-def to_week(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, idx: int = 0) -> Optional[Week]:
+def to_week(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[Week]:
+
+def to_isoweek(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
 
 # STRING
 
