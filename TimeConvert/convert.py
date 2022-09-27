@@ -256,6 +256,12 @@ class TimeConvertTools(object):
     def to_isoweek(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
         return self.to_week(value, idx=idx, mode=3, format=format)
 
+    def weekdelta(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], mode: int = 3) -> int:
+        return self.to_week(value1, mode=mode) - self.to_week(value2, mode=mode)
+
+    def isoweekdelta(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date]) -> int:
+        return self.to_isoweek(value1) - self.to_isoweek(value2)
+
     # STRING
 
     # DATETIME_STRING

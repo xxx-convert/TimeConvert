@@ -185,6 +185,12 @@ class TestTimeConvertCommands(object):
         assert tc.to_isoweek('2017-12-08 15:27:00', idx=-1) == Week(2017, 48)
         assert tc.to_isoweek('2017-12-08 15:27:00', idx=1) == Week(2017, 50)
 
+    def test_weekdelta(self):
+        assert tc.weekdelta('2017-12-31 15:27:00', '2017-12-08 15:27:00') == 3
+
+    def test_isoweekdelta(self):
+        assert tc.isoweekdelta('2017-12-31 15:27:00', '2017-12-08 15:27:00') == 3
+
     # STRING
 
     # DATETIME_STRING

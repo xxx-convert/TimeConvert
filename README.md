@@ -96,6 +96,10 @@ def local_isoweek(self, dt: Optional[datetime.datetime] = None, utc: bool = Fals
 def to_week(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[Week]:
 
 def to_isoweek(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
+    
+def weekdelta(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], mode: int = 3) -> int:
+        
+def isoweekdelta(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date]) -> int:
 
 # STRING
 
