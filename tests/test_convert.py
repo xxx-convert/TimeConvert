@@ -123,9 +123,15 @@ class TestTimeConvertCommands(object):
     # DATE
 
     def test_utc_date(self):
-        assert isinstance(tc.local_date(), datetime.date)
+        assert isinstance(tc.utc_date(), datetime.date)
+        assert tc.utc_date(datetime.datetime(2017, 12, 8, 15, 27, 0)) == datetime.date(2017, 12, 8)
+        assert tc.utc_date(datetime.date(2017, 12, 8)) == datetime.date(2017, 12, 8)
+        assert tc.utc_date() == datetime.datetime.date(datetime.datetime.utcnow())
 
     def test_local_date(self):
+        assert isinstance(tc.local_date(), datetime.date)
+        assert tc.local_date(datetime.datetime(2017, 12, 8, 15, 27, 0)) == datetime.date(2017, 12, 8)
+        assert tc.local_date(datetime.date(2017, 12, 8)) == datetime.date(2017, 12, 8)
         assert tc.local_date() == datetime.datetime.date(datetime.datetime.now())
 
     def test_datetime_to_date(self):
@@ -149,9 +155,23 @@ class TestTimeConvertCommands(object):
 
     def test_utc_week(self):
         assert isinstance(tc.utc_week(), int)
+        assert tc.utc_week(datetime.date(2017, 12, 31), mode=0) == 53
+        assert tc.utc_week(datetime.date(2017, 12, 31), mode=3) == 52
+        assert tc.utc_week(datetime.date(2017, 12, 31), mode=5) == 52
 
-    def test_local_date(self):
+    def test_utc_isoweek(self):
+        assert isinstance(tc.utc_isoweek(), int)
+        assert tc.utc_isoweek(datetime.date(2017, 12, 31)) == 52
+
+    def test_local_week(self):
         assert isinstance(tc.local_week(), int)
+        assert tc.local_week(datetime.date(2017, 12, 31), mode=0) == 53
+        assert tc.local_week(datetime.date(2017, 12, 31), mode=3) == 52
+        assert tc.local_week(datetime.date(2017, 12, 31), mode=5) == 52
+
+    def test_local_isoweek(self):
+        assert isinstance(tc.local_isoweek(), int)
+        assert tc.local_isoweek(datetime.date(2017, 12, 31)) == 52
 
     def test_to_week(self):
         with pytest.raises(ValueError):
