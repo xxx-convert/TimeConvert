@@ -297,6 +297,45 @@ class TestTimeConvertCommands(object):
         dt = tc.utc_string_to_local_datetime('2017-12-08 15:27:00')
         assert tc.is_local_datetime(dt)
 
+    # TIME_DELTA
+
+    def test_timestamp_delta(self):
+        delta = tc.timestamp_delta(1514705220, 1512718020)
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+    def test_datetime_delta(self):
+        delta = tc.datetime_delta(datetime.datetime(2017, 12, 31, 15, 27, 0), datetime.datetime(2017, 12, 8, 15, 27, 0))
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+    def test_date_delta(self):
+        delta = tc.date_delta(datetime.date(2017, 12, 31), datetime.date(2017, 12, 8))
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+    def test_string_delta(self):
+        delta = tc.string_delta('2017-12-31 15:27:00', '2017-12-08 15:27:00')
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+    def test_delta(self):
+        delta = tc.timestamp_delta(1514705220, 1512718020)
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+        delta = tc.delta(datetime.datetime(2017, 12, 31, 15, 27, 0), datetime.datetime(2017, 12, 8, 15, 27, 0))
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+        delta = tc.delta(datetime.date(2017, 12, 31), datetime.date(2017, 12, 8))
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
+        delta = tc.delta('2017-12-31 15:27:00', '2017-12-08 15:27:00')
+        assert isinstance(delta, dict)
+        assert delta['total_seconds'] == 1987200
+
     # PAST vs. FUTURE
 
     def test_is_past_time(self):
@@ -332,6 +371,7 @@ class TestTimeConvertCommands(object):
         assert not tc.is_future_time(tc.several_time_ago(hours=2), base_dt=tc.several_time_ago(hours=1))
 
     # OTHER
+
     def test_date_range(self):
         dates = tc.date_range('2017-12-08', '2017-12-31')
         assert isinstance(dates, types.GeneratorType)

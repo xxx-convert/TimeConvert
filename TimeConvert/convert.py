@@ -13,6 +13,7 @@ from .quarter import Quarter
 
 
 T = TypeVar('T')
+TimeAnyT = Union[datetime.datetime, datetime.date, str, bytes]
 
 
 class TimeConvertTools(object):
@@ -209,7 +210,7 @@ class TimeConvertTools(object):
     def datetime_to_date(self, dt: datetime.datetime) -> datetime.date:
         return dt.date()
 
-    def to_date(self, value: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, idx: int = 0) -> Optional[datetime.date]:
+    def to_date(self, value: TimeAnyT, format: Optional[str] = None, idx: int = 0) -> Optional[datetime.date]:
         if isinstance(value, datetime.datetime):
             date = value.date()
         elif isinstance(value, datetime.date):
@@ -222,7 +223,7 @@ class TimeConvertTools(object):
 
     # def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
     #     return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)
-    def is_the_same_day(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> bool:
+    def is_the_same_day(self, value1: TimeAnyT, value2: TimeAnyT, format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> bool:
         return self.to_date(value1, format=format1 or format) == self.to_date(value2, format=format2 or format)
 
     # WEEK
@@ -245,7 +246,7 @@ class TimeConvertTools(object):
     def local_isoweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> int:
         return self.local_week(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=3)
 
-    def to_week(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[Week]:
+    def to_week(self, value: TimeAnyT, idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[Week]:
         date = self.to_date(value, format=format)
         if not date:
             return None
@@ -253,13 +254,13 @@ class TimeConvertTools(object):
             raise ValueError('to_week only support mode equals 3 nowadays')
         return Week.withdate(date) + idx
 
-    def to_isoweek(self, value: Union[str, datetime.datetime, datetime.date], idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
+    def to_isoweek(self, value: TimeAnyT, idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
         return self.to_week(value, idx=idx, mode=3, format=format)
 
-    def weekdelta(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date], mode: int = 3) -> int:
+    def weekdelta(self, value1: TimeAnyT, value2: TimeAnyT, mode: int = 3) -> int:
         return self.to_week(value1, mode=mode) - self.to_week(value2, mode=mode)
 
-    def isoweekdelta(self, value1: Union[str, datetime.datetime, datetime.date], value2: Union[str, datetime.datetime, datetime.date]) -> int:
+    def isoweekdelta(self, value1: TimeAnyT, value2: TimeAnyT) -> int:
         return self.to_isoweek(value1) - self.to_isoweek(value2)
 
     # STRING
@@ -349,7 +350,7 @@ class TimeConvertTools(object):
     def local_timestamp(self, local_dt: Optional[datetime.datetime] = None, ms: bool = False, micro: bool = False, milli: bool = False, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> int:
         return self.__micro_or_milli(self.datetime_to_timestamp(self.__local_datetime(local_dt, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms), micro=micro, milli=milli)
 
-    def datetime_to_timestamp(self, dt: datetime.datetime, ms: bool = False) -> int:
+    def datetime_to_timestamp(self, dt: Union[datetime.datetime, datetime.date], ms: bool = False) -> int:
         # http://stackoverflow.com/questions/26161156/python-converting-string-to-timestamp-with-microseconds
         # ``dt - epoch`` will raise ``TypeError: can't subtract offset-naive and offset-aware datetimes``
         # Total seconds from ``1970-01-01 00:00:00``(utc or local)
@@ -358,6 +359,9 @@ class TimeConvertTools(object):
         if not ms:
             return stamp
         return stamp + dt.microsecond / self.SECOND_MICROSECOND
+
+    def date_to_timestamp(self, dt: Union[datetime.datetime, datetime.date], ms: bool = False) -> int:
+        return self.datetime_to_timestamp(dt, ms=ms)
 
     def structime_to_timestamp(self, structime: time.struct_time) -> int:
         return int(time.mktime(structime))
@@ -498,14 +502,34 @@ class TimeConvertTools(object):
             'interval': interval and abs_delta >= interval
         }
 
-    def datetime_delta(self, dt1: datetime.datetime, dt2: datetime.datetime, interval: Optional[int] = None) -> Optional[Dict[str, Any]]:
+    def datetime_delta(self, dt1: Union[datetime.datetime, datetime.date], dt2: Union[datetime.datetime, datetime.date], interval: Optional[int] = None) -> Optional[Dict[str, Any]]:
         return self.timestamp_delta(self.datetime_to_timestamp(dt1), self.datetime_to_timestamp(dt2), interval)
+
+    def date_delta(self, dt1: Union[datetime.datetime, datetime.date], dt2: Union[datetime.datetime, datetime.date], interval: Optional[int] = None) -> Optional[Dict[str, Any]]:
+        return self.datetime_delta(dt1, dt2, interval=interval)
 
     def string_delta(self, string1: str, string2: str, interval: Optional[int] = None, format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> Optional[Dict[str, Any]]:
         format = self.format(format)
         if (not self.validate_string(string1, format1 or format)) or (not self.validate_string(string2, format2 or format)):
             return None
         return self.timestamp_delta(self.string_to_timestamp(string1, format1 or format), self.string_to_timestamp(string2, format2 or format), interval)
+
+    def delta(self, value1: TimeAnyT, value2: TimeAnyT, interval: Optional[int] = None, format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        if isinstance(value1, datetime.datetime):
+            value1 = self.datetime_to_timestamp(value1)
+        elif isinstance(value1, datetime.date):
+            value1 = self.date_to_timestamp(value1)
+        elif isinstance(value1, (str, bytes)):
+            value1 = self.string_to_timestamp(value1, format1 or format)
+
+        if isinstance(value2, datetime.datetime):
+            value2 = self.datetime_to_timestamp(value2)
+        elif isinstance(value2, datetime.date):
+            value2 = self.date_to_timestamp(value2)
+        elif isinstance(value2, (str, bytes)):
+            value2 = self.string_to_timestamp(value2, format2 or format)
+
+        return self.timestamp_delta(value1, value2, interval=interval)
 
     # TIME_COUNT_DOWN
 
