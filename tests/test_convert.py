@@ -254,6 +254,14 @@ class TestTimeConvertCommands(object):
         assert tc.local_yearweek_string(datetime.date(2017, 12, 31), mode=3) == '2017W52'
         assert tc.local_yearweek_string(datetime.date(2017, 12, 31), mode=5) == '2017W52'
 
+    def test_utc_isoyearweek_string(self):
+        assert isinstance(tc.utc_isoyearweek_string(), str)
+        assert tc.utc_isoyearweek_string(datetime.date(2017, 12, 31)) == '2017W52'
+
+    def test_local_isoyearweek_string(self):
+        assert isinstance(tc.local_isoyearweek_string(), str)
+        assert tc.local_isoyearweek_string(datetime.date(2017, 12, 31)) == '2017W52'
+
     # WEEK_STRING
     def test_utc_week_string(self):
         assert isinstance(tc.utc_week_string(), str)
