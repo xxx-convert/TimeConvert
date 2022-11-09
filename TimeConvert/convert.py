@@ -6,8 +6,8 @@ from typing import Any, Callable, Dict, Optional, TypeVar, Union
 import tzlocal
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tz
-from isoweek import Week as ISOWeek
 
+from .isoweek import ISOWeek
 from .month import Month
 from .quarter import Quarter
 from .week import Week

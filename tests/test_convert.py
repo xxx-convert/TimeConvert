@@ -5,9 +5,8 @@ import types
 
 import pytest
 from dateutil.tz import tz
-from isoweek import Week as ISOWeek
 
-from TimeConvert import Month, Quarter
+from TimeConvert import ISOWeek, Month, Quarter
 from TimeConvert import TimeConvert as tc
 from TimeConvert import Week
 

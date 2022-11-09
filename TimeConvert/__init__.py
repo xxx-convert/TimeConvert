@@ -1,4 +1,5 @@
 from TimeConvert.convert import TC, TimeConvert, tc
+from TimeConvert.isoweek import ISOWeek
 from TimeConvert.month import Month
 from TimeConvert.quarter import Quarter
 from TimeConvert.stopwatch import StopWatch, TimeType
@@ -12,6 +13,7 @@ __all__ = [
     'Month',
     'Quarter',
     'Week',
+    'ISOWeek',
     'StopWatch',
     'TimeType'
 ]
