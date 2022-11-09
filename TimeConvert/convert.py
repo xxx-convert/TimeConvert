@@ -6,10 +6,11 @@ from typing import Any, Callable, Dict, Optional, TypeVar, Union
 import tzlocal
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tz
-from isoweek import Week
+from isoweek import Week as ISOWeek
 
 from .month import Month
 from .quarter import Quarter
+from .week import Week
 
 
 T = TypeVar('T')
@@ -29,6 +30,11 @@ class TimeConvertTools(object):
         self.BASE_TIME_ZONE = self.__get_base_time_zone()
         self.DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.DATE_FORMAT = '%Y-%m-%d'
+        # %U - Week number of the year (Sunday as the first day of the week) as a zero-padded decimal number. All days in a new year preceding the first Sunday are considered to be in week 0.
+        # %W - Week number of the year (Monday as the first day of the week) as a zero-padded decimal number. All days in a new year preceding the first Monday are considered to be in week 0.
+        # %Y - Year with century as a decimal number.
+        # %V - ISO 8601 week as a decimal number with Monday as the first day of the week. Week 01 is the week containing Jan 4.
+        # %G - ISO 8601 year with century representing the year that contains the greater part of the ISO week (%V).
         self.WEEK_FORMAT = '%W'
         self.WEEK_FORMAT_U = '%U'
         self.WEEK_FORMAT_W = '%W'
@@ -37,6 +43,15 @@ class TimeConvertTools(object):
             0: self.WEEK_FORMAT_U,
             3: self.WEEK_FORMAT_ISO,
             5: self.WEEK_FORMAT_W,
+        }
+        self.YEARWEEK_FORMAT = '%YW%W'
+        self.YEARWEEK_FORMAT_U = '%YW%U'
+        self.YEARWEEK_FORMAT_W = '%YW%W'
+        self.YEARWEEK_FORMAT_ISO = 'ISO'
+        self.MODE_yearweek_FORMAT = {
+            0: self.YEARWEEK_FORMAT_U,
+            3: self.YEARWEEK_FORMAT_ISO,
+            5: self.YEARWEEK_FORMAT_W,
         }
         self.LEN_FORMAT = {
             19: self.DATETIME_FORMAT,
@@ -226,35 +241,57 @@ class TimeConvertTools(object):
     def is_the_same_day(self, value1: TimeAnyT, value2: TimeAnyT, format: Optional[str] = None, format1: Optional[str] = None, format2: Optional[str] = None) -> bool:
         return self.to_date(value1, format=format1 or format) == self.to_date(value2, format=format2 or format)
 
+    # YEAR WEEK
+
+    def utc_yearweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> Union[Week, ISOWeek]:
+        yearweek_format = self.MODE_yearweek_FORMAT.get(mode, self.YEARWEEK_FORMAT_ISO)
+        if yearweek_format != self.YEARWEEK_FORMAT_ISO:
+            return Week.fromstring(self.utc_string(dt=value, format=yearweek_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
+        return ISOWeek.withdate(self.utc_date(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
+
+    def utc_isoyearweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> ISOWeek:
+        return self.utc_yearweek(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=3)
+
+    def local_yearweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> Union[Week, ISOWeek]:
+        yearweek_format = self.MODE_yearweek_FORMAT.get(mode, self.YEARWEEK_FORMAT_ISO)
+        if yearweek_format != self.YEARWEEK_FORMAT_ISO:
+            return Week.fromstring(self.local_string(dt=value, format=yearweek_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
+        return ISOWeek.withdate(self.local_date(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
+
+    def local_isoyearweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> ISOWeek:
+        return self.local_yearweek(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=3)
+
     # WEEK
 
     def utc_week(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> int:
-        week_format = self.MODE_WEEK_FORMAT.get(mode, self.WEEK_FORMAT_ISO)
-        if week_format != self.WEEK_FORMAT_ISO:
-            return int(self.utc_string(dt=value, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
-        return Week.withdate(self.utc_date(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
+        # week_format = self.MODE_WEEK_FORMAT.get(mode, self.WEEK_FORMAT_ISO)
+        # if week_format != self.WEEK_FORMAT_ISO:
+        #     return int(self.utc_string(dt=value, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
+        # return ISOWeek.withdate(self.utc_date(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
+        return self.utc_yearweek(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=mode).week
 
     def utc_isoweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> int:
         return self.utc_week(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=3)
 
     def local_week(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> int:
-        week_format = self.MODE_WEEK_FORMAT.get(mode, self.WEEK_FORMAT_ISO)
-        if week_format != self.WEEK_FORMAT_ISO:
-            return int(self.local_string(dt=value, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
-        return Week.withdate(self.local_date(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
+        # week_format = self.MODE_WEEK_FORMAT.get(mode, self.WEEK_FORMAT_ISO)
+        # if week_format != self.WEEK_FORMAT_ISO:
+        #     return int(self.local_string(dt=value, format=week_format, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc))
+        # return ISOWeek.withdate(self.local_date(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)).week
+        return self.local_yearweek(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=mode).week
 
     def local_isoweek(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> int:
         return self.local_week(value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=3)
 
-    def to_week(self, value: TimeAnyT, idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[Week]:
+    def to_week(self, value: TimeAnyT, idx: int = 0, mode: int = 3, format: Optional[str] = None) -> Optional[ISOWeek]:
         date = self.to_date(value, format=format)
         if not date:
             return None
         if mode != 3:
             raise ValueError('to_week only support mode equals 3 nowadays')
-        return Week.withdate(date) + idx
+        return ISOWeek.withdate(date) + idx
 
-    def to_isoweek(self, value: TimeAnyT, idx: int = 0, format: Optional[str] = None) -> Optional[Week]:
+    def to_isoweek(self, value: TimeAnyT, idx: int = 0, format: Optional[str] = None) -> Optional[ISOWeek]:
         return self.to_week(value, idx=idx, mode=3, format=format)
 
     def weekdelta(self, value1: TimeAnyT, value2: TimeAnyT, mode: int = 3) -> int:
@@ -327,6 +364,13 @@ class TimeConvertTools(object):
 
     def local_date_string(self, dt: Optional[datetime.datetime] = None, format: Optional[str] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
         return self.local_string(dt=dt, format=self.date_format(format), utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc)
+
+    # WEEK_STRING
+    def utc_yearweek_string(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
+        return str(self.utc_yearweek(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=mode))
+
+    def local_yearweek_string(self, dt: Optional[datetime.datetime] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
+        return str(self.local_yearweek(dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, local_dt=local_dt, utc_dt=utc_dt, isuc=isuc, mode=mode))
 
     # WEEK_STRING
     def utc_week_string(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False, mode: int = 3) -> str:
@@ -696,8 +740,8 @@ class TimeConvertTools(object):
             start_date = self.string_to_date(start_date, start_date_format or format or self.DATE_FORMAT)
         if isinstance(end_date, str):
             end_date = self.string_to_date(end_date, end_date_format or format or self.DATE_FORMAT)
-        start_week = Week.withdate(start_date)
-        end_week = Week.withdate(end_date)
+        start_week = ISOWeek.withdate(start_date)
+        end_week = ISOWeek.withdate(end_date)
         if return_type in ['string', 'str']:
             for n in range(int(end_week - start_week) + 1):
                 current_week = start_week + n

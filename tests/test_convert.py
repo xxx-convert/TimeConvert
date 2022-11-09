@@ -5,10 +5,11 @@ import types
 
 import pytest
 from dateutil.tz import tz
-from isoweek import Week
+from isoweek import Week as ISOWeek
 
 from TimeConvert import Month, Quarter
 from TimeConvert import TimeConvert as tc
+from TimeConvert import Week
 
 
 class TestTimeConvertCommands(object):
@@ -151,6 +152,28 @@ class TestTimeConvertCommands(object):
         assert tc.is_the_same_day(datetime.datetime(2017, 12, 8, 15, 27, 0), datetime.date(2017, 12, 8))
         assert tc.is_the_same_day(datetime.datetime(2017, 12, 8, 15, 27, 0), datetime.datetime(2017, 12, 8, 15, 27, 0))
 
+    # YEAR WEEK
+
+    def test_utc_yearweek(self):
+        assert isinstance(tc.utc_yearweek(), (Week, ISOWeek))
+        assert tc.utc_yearweek(datetime.date(2017, 12, 31), mode=0) == Week(2017, 53)
+        assert tc.utc_yearweek(datetime.date(2017, 12, 31), mode=3) == ISOWeek(2017, 52)
+        assert tc.utc_yearweek(datetime.date(2017, 12, 31), mode=5) == Week(2017, 52)
+
+    def test_utc_isoyearweek(self):
+        assert isinstance(tc.utc_isoyearweek(), ISOWeek)
+        assert tc.utc_isoyearweek(datetime.date(2017, 12, 31)) == ISOWeek(2017, 52)
+
+    def test_local_yearweek(self):
+        assert isinstance(tc.local_yearweek(), (Week, ISOWeek))
+        assert tc.local_yearweek(datetime.date(2017, 12, 31), mode=0) == Week(2017, 53)
+        assert tc.local_yearweek(datetime.date(2017, 12, 31), mode=3) == ISOWeek(2017, 52)
+        assert tc.local_yearweek(datetime.date(2017, 12, 31), mode=5) == Week(2017, 52)
+
+    def test_local_isoyearweek(self):
+        assert isinstance(tc.local_isoyearweek(), ISOWeek)
+        assert tc.local_isoyearweek(datetime.date(2017, 12, 31)) == ISOWeek(2017, 52)
+
     # WEEK
 
     def test_utc_week(self):
@@ -178,12 +201,12 @@ class TestTimeConvertCommands(object):
             tc.to_week('2017-12-08 15:27:00', mode=0)
 
     def test_to_isoweek(self):
-        assert tc.to_isoweek('2017-12-08 15:27:00') == Week(2017, 49)
-        assert tc.to_isoweek('2017-12-08') == Week(2017, 49)
-        assert tc.to_isoweek(datetime.datetime(2017, 12, 8, 15, 27, 0)) == Week(2017, 49)
-        assert tc.to_isoweek(datetime.date(2017, 12, 8)) == Week(2017, 49)
-        assert tc.to_isoweek('2017-12-08 15:27:00', idx=-1) == Week(2017, 48)
-        assert tc.to_isoweek('2017-12-08 15:27:00', idx=1) == Week(2017, 50)
+        assert tc.to_isoweek('2017-12-08 15:27:00') == ISOWeek(2017, 49)
+        assert tc.to_isoweek('2017-12-08') == ISOWeek(2017, 49)
+        assert tc.to_isoweek(datetime.datetime(2017, 12, 8, 15, 27, 0)) == ISOWeek(2017, 49)
+        assert tc.to_isoweek(datetime.date(2017, 12, 8)) == ISOWeek(2017, 49)
+        assert tc.to_isoweek('2017-12-08 15:27:00', idx=-1) == ISOWeek(2017, 48)
+        assert tc.to_isoweek('2017-12-08 15:27:00', idx=1) == ISOWeek(2017, 50)
 
     def test_weekdelta(self):
         assert tc.weekdelta('2017-12-31 15:27:00', '2017-12-08 15:27:00') == 3
@@ -218,6 +241,19 @@ class TestTimeConvertCommands(object):
 
     def test_local_date_string(self):
         assert tc.validate_string(tc.local_date_string(), tc.DATE_FORMAT)
+
+    # YEAR_WEEK_STRING
+    def test_utc_yearweek_string(self):
+        assert isinstance(tc.utc_yearweek_string(), str)
+        assert tc.utc_yearweek_string(datetime.date(2017, 12, 31), mode=0) == '2017W53'
+        assert tc.utc_yearweek_string(datetime.date(2017, 12, 31), mode=3) == '2017W52'
+        assert tc.utc_yearweek_string(datetime.date(2017, 12, 31), mode=5) == '2017W52'
+
+    def test_local_yearweek_string(self):
+        assert isinstance(tc.local_yearweek_string(), str)
+        assert tc.local_yearweek_string(datetime.date(2017, 12, 31), mode=0) == '2017W53'
+        assert tc.local_yearweek_string(datetime.date(2017, 12, 31), mode=3) == '2017W52'
+        assert tc.local_yearweek_string(datetime.date(2017, 12, 31), mode=5) == '2017W52'
 
     # WEEK_STRING
     def test_utc_week_string(self):
@@ -402,9 +438,9 @@ class TestTimeConvertCommands(object):
         weeks = tc.week_range('2017-12-08', '2017-12-31')
         assert isinstance(weeks, types.GeneratorType)
         weeks = [week for week in weeks]
-        assert isinstance(weeks[0], Week)
-        assert weeks[0] == Week(2017, 49)
-        assert weeks[-1] == Week(2017, 52)
+        assert isinstance(weeks[0], ISOWeek)
+        assert weeks[0] == ISOWeek(2017, 49)
+        assert weeks[-1] == ISOWeek(2017, 52)
         assert len(weeks) == 4
 
         weeks = tc.week_range('2017-12-08', '2017-12-31', return_type='string')
