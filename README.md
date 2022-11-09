@@ -29,3 +29,7 @@ from TimeConvert import TIME_ZONE, TIME_FORMAT
 # Deassign TIME_ZONE & TIME_FORMAT
 tc.__init__(timezone='Asia/Shanghai', format='%Y-%m-%d %H:%M:%S')
 ```
+
+# Reference
+* isoweek.py - https://github.com/gisle/isoweek
+* month.py - https://github.com/kstark/months
