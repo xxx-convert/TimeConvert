@@ -24,11 +24,12 @@ class TestTimeConvertCommands(object):
 
     def test_time_format(self):
         assert tc.format() == tc.TIME_FORMAT
+        assert tc.isoformat() == tc.TIME_ISOFORMAT
         timeformat = '%Y%m%d%H%M%S'
         tc.__init__(format=timeformat)
         assert tc.TIME_FORMAT == timeformat
         assert tc.format() == timeformat
-        tc.__init__(format=tc.DATETIME_FORMAT)
+        tc.__init__(format=None)
 
     def test_timezone(self):
         assert tc.timezone() == tc.TIME_ZONE
@@ -233,6 +234,18 @@ class TestTimeConvertCommands(object):
 
     def test_local_datetime_string(self):
         assert tc.validate_string(tc.local_datetime_string(), tc.DATETIME_FORMAT)
+
+    def test_utc_isostring(self):
+        assert tc.validate_string(tc.utc_isostring(), tc.DATETIME_ISOFORMAT)
+
+    def test_local_isostring(self):
+        assert tc.validate_string(tc.local_isostring(), tc.DATETIME_ISOFORMAT)
+
+    def test_utc_datetime_isostring(self):
+        assert tc.validate_string(tc.utc_datetime_isostring(), tc.DATETIME_ISOFORMAT)
+
+    def test_local_datetime_isostring(self):
+        assert tc.validate_string(tc.local_datetime_isostring(), tc.DATETIME_ISOFORMAT)
 
     # DATE_STRING
     def test_utc_date_string(self):

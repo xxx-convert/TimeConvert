@@ -19,6 +19,7 @@ tc.utc_timestamp()
 | Function Points | TimeConvert | Other |
 | ---- | ---- | ---- |
 | TimeStamp | tc.local_timestamp(ms=True) | time.time() |
+| ISOFormat | tc.local_isostring() | datetime.datetime.now().isoformat() |
 
 
 # Variable
