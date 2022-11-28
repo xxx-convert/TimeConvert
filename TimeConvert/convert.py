@@ -94,6 +94,9 @@ class TimeConvertTools(object):
     def __datetime(self, dt: Optional[datetime.datetime] = None, utc: Optional[bool] = True, timezone: Optional[str] = None) -> datetime.datetime:
         return dt or (self.basic_utc_datetime() if utc else self.basic_local_datetime(timezone=timezone))
 
+    def __relativedelta(self, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0):
+        return relativedelta(years=years, months=months) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+
     def __remove_ms_or_not(self, dt: datetime.datetime, ms: Optional[bool] = True) -> datetime.datetime:
         return dt if ms else self.remove_microsecond(dt)
 
@@ -208,10 +211,10 @@ class TimeConvertTools(object):
         return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) + datetime.timedelta(days=days), ms=ms)
 
     def several_time_ago(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
-        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) - relativedelta(years=years, months=months) - datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms)
+        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) - self.__relativedelta(years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms)
 
     def several_time_coming(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
-        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) + relativedelta(years=years, months=months) + datetime.timedelta(days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms)
+        return self.__remove_ms_or_not(self.__datetime(dt, utc, timezone=timezone) + self.__relativedelta(years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), ms=ms)
 
     def utc_datetime(self, dt: Optional[datetime.datetime] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
         return self.several_time_coming(dt=dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
@@ -221,16 +224,20 @@ class TimeConvertTools(object):
 
     # DATE
 
-    def utc_date(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+    def utc_date(self, value: Union[TimeAnyT, None] = None, format: Optional[str] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+        if isinstance(value, (str, bytes)):
+            value = self.string_to_utc_datetime(value, format)
         return self.to_date(self.utc_datetime(dt=value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
-    def local_date(self, value: Union[datetime.datetime, datetime.date, None] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+    def local_date(self, value: Union[TimeAnyT, None] = None, format: Optional[str] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.date:
+        if isinstance(value, (str, bytes)):
+            value = self.string_to_local_datetime(value, format)
         return self.to_date(self.local_datetime(dt=value, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks))
 
     def datetime_to_date(self, dt: datetime.datetime) -> datetime.date:
         return dt.date()
 
-    def to_date(self, value: TimeAnyT, format: Optional[str] = None, idx: int = 0) -> Optional[datetime.date]:
+    def to_date(self, value: TimeAnyT, format: Optional[str] = None, idx: int = 0, years: int = 0, months: int = 0, days: int = 0, weeks: int = 0) -> Optional[datetime.date]:
         if isinstance(value, datetime.datetime):
             date = value.date()
         elif isinstance(value, datetime.date):
@@ -239,7 +246,7 @@ class TimeConvertTools(object):
             date = self.string_to_date(value, format)
         else:
             return None
-        return date + datetime.timedelta(days=idx)
+        return date + self.__relativedelta(years=years, months=months, days=days or idx, weeks=weeks)
 
     # def is_the_same_day(self, dt1: datetime.date, dt2: datetime.date) -> bool:
     #     return self.local_string(dt1, format=self.DATE_FORMAT) == self.local_string(dt2, format=self.DATE_FORMAT)

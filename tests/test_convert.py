@@ -128,12 +128,14 @@ class TestTimeConvertCommands(object):
         assert tc.utc_date(datetime.datetime(2017, 12, 8, 15, 27, 0)) == datetime.date(2017, 12, 8)
         assert tc.utc_date(datetime.date(2017, 12, 8)) == datetime.date(2017, 12, 8)
         assert tc.utc_date() == datetime.datetime.date(datetime.datetime.utcnow())
+        assert tc.utc_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
 
     def test_local_date(self):
         assert isinstance(tc.local_date(), datetime.date)
         assert tc.local_date(datetime.datetime(2017, 12, 8, 15, 27, 0)) == datetime.date(2017, 12, 8)
         assert tc.local_date(datetime.date(2017, 12, 8)) == datetime.date(2017, 12, 8)
         assert tc.local_date() == datetime.datetime.date(datetime.datetime.now())
+        assert tc.local_date('2017-12-08 15:27:00', format=tc.DATETIME_FORMAT) == datetime.date(2017, 12, 8)
 
     def test_datetime_to_date(self):
         assert tc.to_date(datetime.datetime(2017, 12, 8, 15, 27, 0)) == datetime.date(2017, 12, 8)
@@ -145,6 +147,7 @@ class TestTimeConvertCommands(object):
         assert tc.to_date(datetime.date(2017, 12, 8)) == datetime.date(2017, 12, 8)
         assert tc.to_date('2017-12-08 15:27:00', idx=-1) == datetime.date(2017, 12, 7)
         assert tc.to_date('2017-12-08 15:27:00', idx=1) == datetime.date(2017, 12, 9)
+        assert tc.to_date('2017-12-08 15:27:00', years=1, months=1, days=1, weeks=1) == datetime.date(2019, 1, 16)
 
     def test_is_the_same_day(self):
         assert tc.is_the_same_day(datetime.datetime(2017, 12, 8, 15, 27, 0), '2017-12-08 15:27:00')
