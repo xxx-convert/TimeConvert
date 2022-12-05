@@ -208,7 +208,7 @@ class TimeConvertTools(object):
             dt = self.make_naive(dt)
         except ValueError:
             pass
-        tzinfo = self.tzinfo()
+        tzinfo = self.tzinfo(timezone)
         local_dt = dt.replace(tzinfo=tzinfo)
         return local_dt.astimezone(tz.UTC)
 
@@ -724,7 +724,7 @@ class TimeConvertTools(object):
 
     def make_aware(self, value: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
         """Make a naive datetime.datetime in a given time zone aware."""
-        tzinfo = self.tzinfo()
+        tzinfo = self.tzinfo(timezone)
         # Check that we won't overwrite the timezone of an aware datetime.
         if self.is_aware(value):
             raise ValueError('make_aware expects a naive datetime, got %s' % value)
@@ -733,7 +733,7 @@ class TimeConvertTools(object):
 
     def make_naive(self, value: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
         """Make an aware datetime.datetime naive in a given time zone."""
-        tzinfo = self.tzinfo()
+        tzinfo = self.tzinfo(timezone)
         # Emulate the behavior of astimezone() on Python < 3.6.
         if self.is_naive(value):
             raise ValueError('make_naive() cannot be applied to a naive datetime')
