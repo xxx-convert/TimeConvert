@@ -534,31 +534,31 @@ class TimeConvertTools(object):
     # STRING ==> DATETIME
 
     def string_to_datetime(self, string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
-        format = self.format(format)
+        format = self.value_format(string, format)
         if not self.validate_string(string, format):
             return None
         return datetime.datetime.strptime(string, format)
 
     def string_to_utc_datetime(self, string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
-        format = self.format(format)
+        format = self.value_format(string, format)
         if not self.validate_string(string, format):
             return None
         return self.__to_utc_datetime(self.string_to_datetime(string, format))
 
     def string_to_local_datetime(self, string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
-        format = self.format(format)
+        format = self.value_format(string, format)
         if not self.validate_string(string, format):
             return None
         return self.__to_local_datetime(self.string_to_datetime(string, format))
 
     def utc_string_to_utc_datetime(self, utc_string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
-        format = self.format(format)
+        format = self.value_format(utc_string, format)
         if not self.validate_string(utc_string, format):
             return None
         return self.__to_utc_datetime(self.string_to_datetime(utc_string, format)) + self.offset()
 
     def utc_string_to_local_datetime(self, utc_string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
-        format = self.format(format)
+        format = self.value_format(utc_string, format)
         if not self.validate_string(utc_string, format):
             return None
         return self.__to_local_datetime(self.string_to_datetime(utc_string, format)) + self.offset()
@@ -898,6 +898,19 @@ class TimeConvertTools(object):
             if start_isoweekday <= isoweekday or end_isoweekday >= isoweekday:
                 weeks += 1
         return weeks
+
+    def between(self, value: TimeAnyT, start_value: TimeAnyT, end_value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, start_format: Optional[str] = None, end_format: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        value = self.to_datetime(value, timezone=timezone, format=format, dttype='utc')
+        start_value = self.to_datetime(start_value, timezone=timezone, format=format or start_format, dttype='utc')
+        end_value = self.to_datetime(end_value, timezone=timezone, format=format or end_format, dttype='utc')
+
+        if not start_value or not end_value:
+            raise ValueError('`start_value` and `end_value` should not empty')
+
+        if start_value > end_value:
+            start_value, end_value = end_value, start_value
+
+        return start_value <= value <= end_value
 
 
 TC = tc = TimeConvert = TimeConvertTools()

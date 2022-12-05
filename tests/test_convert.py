@@ -99,6 +99,9 @@ class TestTimeConvertCommands(object):
         assert tc.to_datetime('2017-12-08 15:27:00', dttype='utc') == datetime.datetime(2017, 12, 8, 7, 27, tzinfo=tz.tzutc())
         assert tc.to_datetime('2017-12-08 15:27:00', dttype='local') == datetime.datetime(2017, 12, 8, 15, 27, tzinfo=tc.tzinfo())
 
+        assert tc.to_datetime('2017-12-08', dttype='utc') == datetime.datetime(2017, 12, 7, 16, 0, tzinfo=tz.tzutc())
+        assert tc.to_datetime('2017-12-08', dttype='local') == datetime.datetime(2017, 12, 8, 0, 0, tzinfo=tc.tzinfo())
+
     def test_to_utc_datetime(self):
         assert tc.is_utc_datetime(tc.to_utc_datetime(tc.utc_datetime()))
         assert tc.is_utc_datetime(tc.to_utc_datetime(tc.local_datetime()))
@@ -568,3 +571,13 @@ class TestTimeConvertCommands(object):
         assert tc.isoweekdaycount('2017-12-08', '2017-12-31', 3) == 3
         assert tc.isoweekdaycount('2017-12-08', '2018-01-03', 3) == 4
         assert tc.isoweekdaycount('2017-12-06', '2018-01-03', 3) == 5
+
+    def test_between(self):
+        with pytest.raises(ValueError):
+            tc.between('2017-12-08 15:27:00', None, None)
+        assert tc.between('2017-12-08 15:27:00', '2017-12-06 15:27:00', '2017-12-31 15:27:00')
+        assert tc.between('2017-12-08 15:27:00', '2017-12-31 15:27:00', '2017-12-06 15:27:00')
+        assert tc.between('2017-12-08', '2017-12-06', '2017-12-31')
+        assert tc.between('2017-12-08', '2017-12-31', '2017-12-06')
+        assert tc.between('2017-12-08 15:27:00', '2017-12-06 15:27:00', tc.utc_datetime())
+        assert tc.between('2017-12-08 15:27:00', tc.utc_datetime(), '2017-12-06 15:27:00')
