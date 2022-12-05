@@ -49,6 +49,10 @@ class TestTimeConvertCommands(object):
         assert tc.value_format('2017-12-08 15:27:00') == tc.DATETIME_FORMAT
         assert tc.value_format('2017-12-08') == tc.DATE_FORMAT
 
+    def test_tzinfo(self):
+        assert isinstance(tc.tzinfo(), tz.tzfile)
+        assert isinstance(tc.tzinfo(timezone=tc.TIME_ZONE), tz.tzfile)
+
     # OFFSET
 
     def test_offset(self):
@@ -66,19 +70,7 @@ class TestTimeConvertCommands(object):
         dt = tc.remove_microsecond(tc.utc_datetime())
         assert dt.microsecond == 0
 
-    # DATETIME
-
-    def test_utc_datetime(self):
-        dt = tc.utc_datetime()
-        assert dt.tzinfo == tz.UTC
-        dt = tc.utc_datetime(ms=False)
-        assert dt.microsecond == 0
-
-    def test_local_datetime(self):
-        dt = tc.local_datetime()
-        assert dt.tzinfo == tz.gettz(tc.TIME_ZONE)
-        dt = tc.local_datetime(ms=False)
-        assert dt.microsecond == 0
+    # BASIC DATETIME
 
     def test_is_utc_datetime(self):
         assert tc.is_utc_datetime(tc.utc_datetime())
@@ -89,6 +81,24 @@ class TestTimeConvertCommands(object):
         assert tc.is_local_datetime(tc.local_datetime(), local_tz=tc.TIME_ZONE)
         assert not tc.is_local_datetime(tc.utc_datetime())
 
+    def test_date_to_datetime(self):
+        assert isinstance(tc.date_to_datetime(tc.utc_date()), datetime.datetime)
+        assert isinstance(tc.date_to_datetime(tc.local_date()), datetime.datetime)
+
+    def test_to_datetime(self):
+        assert tc.is_utc_datetime(tc.to_datetime(tc.utc_datetime(), dttype='utc'))
+        assert tc.is_utc_datetime(tc.to_datetime(tc.local_datetime(), dttype='utc'))
+        assert tc.is_local_datetime(tc.to_datetime(tc.utc_datetime(), dttype='local'))
+        assert tc.is_local_datetime(tc.to_datetime(tc.local_datetime(), dttype='local'))
+
+        assert tc.is_utc_datetime(tc.to_datetime(tc.utc_date(), dttype='utc'))
+        assert tc.is_utc_datetime(tc.to_datetime(tc.local_date(), dttype='utc'))
+        assert tc.is_local_datetime(tc.to_datetime(tc.utc_date(), dttype='local'))
+        assert tc.is_local_datetime(tc.to_datetime(tc.local_date(), dttype='local'))
+
+        assert tc.to_datetime('2017-12-08 15:27:00', dttype='utc') == datetime.datetime(2017, 12, 8, 7, 27, tzinfo=tz.tzutc())
+        assert tc.to_datetime('2017-12-08 15:27:00', dttype='local') == datetime.datetime(2017, 12, 8, 15, 27, tzinfo=tc.tzinfo())
+
     def test_to_utc_datetime(self):
         assert tc.is_utc_datetime(tc.to_utc_datetime(tc.utc_datetime()))
         assert tc.is_utc_datetime(tc.to_utc_datetime(tc.local_datetime()))
@@ -96,6 +106,8 @@ class TestTimeConvertCommands(object):
     def test_to_local_datetime(self):
         assert tc.is_local_datetime(tc.to_local_datetime(tc.utc_datetime()))
         assert tc.is_local_datetime(tc.to_local_datetime(tc.local_datetime()))
+
+    # DATETIME
 
     def test_yesterday_utc_datetime(self):
         assert isinstance(tc.yesterday_utc_datetime(), datetime.datetime)
@@ -120,6 +132,18 @@ class TestTimeConvertCommands(object):
 
     def test_several_time_coming(self):
         assert isinstance(tc.several_time_coming(days=1), datetime.datetime)
+
+    def test_utc_datetime(self):
+        dt = tc.utc_datetime()
+        assert dt.tzinfo == tz.UTC
+        dt = tc.utc_datetime(ms=False)
+        assert dt.microsecond == 0
+
+    def test_local_datetime(self):
+        dt = tc.local_datetime()
+        assert dt.tzinfo == tz.gettz(tc.TIME_ZONE)
+        dt = tc.local_datetime(ms=False)
+        assert dt.microsecond == 0
 
     # DATE
 

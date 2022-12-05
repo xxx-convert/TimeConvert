@@ -83,6 +83,12 @@ class TimeConvertTools(object):
             return format
         return self.LEN_FORMAT.get(len(value))
 
+    def tzinfo(self, timezone: Optional[str] = None, tzname: str = None):
+        # tzname = self.timezone(timezone)
+        # tzinfo = tz.gettz(tzname)
+        # return tzinfo
+        return tz.gettz(tzname or self.timezone(timezone))
+
     # PRIVATE
 
     def __utc_datetime(self, utc_dt: Optional[datetime.datetime] = None, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
@@ -144,7 +150,7 @@ class TimeConvertTools(object):
         #
         # In[5]: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         # Out[5]: '2017-04-03 23:20:00'
-        return self.__remove_ms_or_not(self.to_local_datetime(self.basic_utc_datetime(), self.timezone(timezone)), ms=ms)
+        return self.__remove_ms_or_not(self.__to_local_datetime(self.basic_utc_datetime(), self.timezone(timezone)), ms=ms)
 
     def is_utc_datetime(self, dt: datetime.datetime) -> bool:
         return dt.tzinfo == tz.UTC
@@ -171,24 +177,71 @@ class TimeConvertTools(object):
 
         return str(dt.tzinfo) == str(None if local_tz == -1 else tz.gettz(self.timezone(local_tz)))
 
-    def to_utc_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
+    def date_to_datetime(self, dt: datetime.date) -> datetime.datetime:
+        return datetime.datetime(dt.year, dt.month, dt.day)
+
+    def __to_utc_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
         if self.is_utc_datetime(dt):
             return dt
         try:
             dt = self.make_naive(dt)
         except ValueError:
             pass
-        tzinfo = tz.gettz(self.timezone(timezone))
+        tzinfo = self.tzinfo(timezone)
         local_dt = dt.replace(tzinfo=tzinfo)
         return local_dt.astimezone(tz.UTC)
 
-    def to_local_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
+    def __to_local_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
         tzname = self.timezone(timezone)
+        tzinfo = self.tzinfo(tzname=tzname)
+        if not dt.tzinfo:
+            return dt.replace(tzinfo=tzinfo)
         if self.is_local_datetime(dt, local_tz=tzname):
             return dt
-        tzinfo = tz.gettz(tzname)
         utc_dt = dt.replace(tzinfo=tz.UTC)
         return utc_dt.astimezone(tzinfo)
+
+    def _to_utc_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
+        if self.is_utc_datetime(dt):
+            return dt
+        try:
+            dt = self.make_naive(dt)
+        except ValueError:
+            pass
+        tzinfo = self.tzinfo()
+        local_dt = dt.replace(tzinfo=tzinfo)
+        return local_dt.astimezone(tz.UTC)
+
+    def _to_local_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
+        tzname = self.timezone(timezone)
+        tzinfo = self.tzinfo(tzname=tzname)
+        if not dt.tzinfo:
+            return dt.replace(tzinfo=tzinfo)
+        if self.is_local_datetime(dt, local_tz=tzname):
+            return dt
+        utc_dt = dt.replace(tzinfo=tz.UTC)
+        return utc_dt.astimezone(tzinfo)
+
+    def to_datetime(self, value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, idx: int = 0, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, dttype: Optional[str] = None) -> Optional[datetime.date]:
+        if isinstance(value, datetime.datetime):
+            dt = value
+        elif isinstance(value, datetime.date):
+            dt = self.date_to_datetime(value)
+        elif isinstance(value, (str, bytes)):
+            dt = self.string_to_datetime(value, format)
+        else:
+            return None
+        if dttype == 'utc':
+            dt = self.__to_utc_datetime(dt, timezone=timezone)
+        elif dttype == 'local':
+            dt = self.__to_local_datetime(dt, timezone=timezone)
+        return dt + self.__relativedelta(years=years, months=months, days=days or idx, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks)
+
+    def to_utc_datetime(self, value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, idx: int = 0, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
+        return self.to_datetime(value, timezone=timezone, format=format, idx=idx, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, dttype='utc')
+
+    def to_local_datetime(self, value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, idx: int = 0, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0) -> datetime.datetime:
+        return self.to_datetime(value, timezone=timezone, format=format, idx=idx, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks, dttype='local')
 
     # DATETIME
 
@@ -361,7 +414,7 @@ class TimeConvertTools(object):
 
     def local_string(self, dt: Optional[datetime.datetime] = None, format: Optional[str] = None, utc: bool = False, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
         final_dt = dt or local_dt
-        final_dt = self.to_local_datetime(dt=utc_dt) if not final_dt and utc_dt else final_dt
+        final_dt = self.__to_local_datetime(dt=utc_dt) if not final_dt and utc_dt else final_dt
         return self.datetime_to_string(self.local_datetime(dt=final_dt, utc=utc, ms=ms, timezone=timezone, years=years, months=months, days=days, seconds=seconds, microseconds=microseconds, milliseconds=milliseconds, minutes=minutes, hours=hours, weeks=weeks), self.format(format), isuc=isuc)
 
     def utc_datetime_string(self, dt: Optional[datetime.datetime] = None, format: Optional[str] = None, utc: bool = True, ms: bool = True, timezone: Optional[str] = None, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, local_dt: Optional[datetime.datetime] = None, utc_dt: Optional[datetime.datetime] = None, isuc: bool = False) -> str:
@@ -490,25 +543,25 @@ class TimeConvertTools(object):
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.to_utc_datetime(self.string_to_datetime(string, format))
+        return self.__to_utc_datetime(self.string_to_datetime(string, format))
 
     def string_to_local_datetime(self, string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
         format = self.format(format)
         if not self.validate_string(string, format):
             return None
-        return self.to_local_datetime(self.string_to_datetime(string, format)) - self.offset()
+        return self.__to_local_datetime(self.string_to_datetime(string, format))
 
     def utc_string_to_utc_datetime(self, utc_string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
         format = self.format(format)
         if not self.validate_string(utc_string, format):
             return None
-        return self.to_utc_datetime(self.string_to_datetime(utc_string, format)) + self.offset()
+        return self.__to_utc_datetime(self.string_to_datetime(utc_string, format)) + self.offset()
 
     def utc_string_to_local_datetime(self, utc_string: str, format: Optional[str] = None) -> Optional[datetime.datetime]:
         format = self.format(format)
         if not self.validate_string(utc_string, format):
             return None
-        return self.to_local_datetime(self.string_to_datetime(utc_string, format))
+        return self.__to_local_datetime(self.string_to_datetime(utc_string, format)) + self.offset()
 
     # STRING ==> TIMESTAMP
 
@@ -538,7 +591,7 @@ class TimeConvertTools(object):
 
     def timestamp_to_utc_datetime(self, stamp: int) -> datetime.datetime:
         # return datetime.datetime.utcfromtimestamp(stamp)
-        return self.to_utc_datetime(self.timestamp_to_datetime(stamp))
+        return self.__to_utc_datetime(self.timestamp_to_datetime(stamp))
 
     def timestamp_to_local_datetime(self, stamp: int) -> datetime.datetime:
         return self.timestamp_to_datetime(stamp)
@@ -548,7 +601,7 @@ class TimeConvertTools(object):
         return self.make_aware(self.timestamp_to_datetime(stamp), timezone=self.timezone('UTC'))
 
     def utc_timestamp_to_local_datetime(self, stamp: int) -> datetime.datetime:
-        return self.to_local_datetime(self.timestamp_to_datetime(stamp))
+        return self.__to_local_datetime(self.timestamp_to_datetime(stamp))
 
     # TIMESTAMP ==> AGE
 
@@ -611,7 +664,7 @@ class TimeConvertTools(object):
         return abs(min((self.utc_timestamp() if utc else self.local_timestamp()) - stamp, 0))
 
     def datetime_countdown(self, dt: datetime.datetime) -> int:
-        return self.timestamp_countdown(self.datetime_to_timestamp(self.to_utc_datetime(dt)))
+        return self.timestamp_countdown(self.datetime_to_timestamp(self.__to_utc_datetime(dt)))
 
     def string_countdown(self, string: str, format: Optional[str] = None) -> Optional[int]:
         format = self.format(format)
@@ -671,7 +724,7 @@ class TimeConvertTools(object):
 
     def make_aware(self, value: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
         """Make a naive datetime.datetime in a given time zone aware."""
-        tzinfo = tz.gettz(self.timezone(timezone))
+        tzinfo = self.tzinfo()
         # Check that we won't overwrite the timezone of an aware datetime.
         if self.is_aware(value):
             raise ValueError('make_aware expects a naive datetime, got %s' % value)
@@ -680,7 +733,7 @@ class TimeConvertTools(object):
 
     def make_naive(self, value: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
         """Make an aware datetime.datetime naive in a given time zone."""
-        tzinfo = tz.gettz(self.timezone(timezone))
+        tzinfo = self.tzinfo()
         # Emulate the behavior of astimezone() on Python < 3.6.
         if self.is_naive(value):
             raise ValueError('make_naive() cannot be applied to a naive datetime')
@@ -695,14 +748,14 @@ class TimeConvertTools(object):
             return None
 
         if isinstance(value, datetime.datetime):
-            return (value if utc else self.to_local_datetime(value)) < base_dt
+            return (value if utc else self.__to_local_datetime(value)) < base_dt
 
         if isinstance(value, (str, bytes)):
             utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(value, format=format)
             return utc_dt and utc_dt < base_dt
 
         if isinstance(value, int):
-            stamp = self.datetime_to_timestamp(base_dt if utc else self.to_local_datetime(base_dt), ms=True)
+            stamp = self.datetime_to_timestamp(base_dt if utc else self.__to_local_datetime(base_dt), ms=True)
             return value < stamp
 
         return None
@@ -714,14 +767,14 @@ class TimeConvertTools(object):
             return None
 
         if isinstance(value, datetime.datetime):
-            return (value if utc else self.to_local_datetime(value)) > base_dt
+            return (value if utc else self.__to_local_datetime(value)) > base_dt
 
         if isinstance(value, (str, bytes)):
             utc_dt = self.utc_string_to_utc_datetime(value, format=format) if utc else self.string_to_utc_datetime(value, format=format)
             return utc_dt and utc_dt > base_dt
 
         if isinstance(value, int):
-            stamp = self.datetime_to_timestamp(base_dt if utc else self.to_local_datetime(base_dt), ms=True)
+            stamp = self.datetime_to_timestamp(base_dt if utc else self.__to_local_datetime(base_dt), ms=True)
             return value > stamp
 
         return None
