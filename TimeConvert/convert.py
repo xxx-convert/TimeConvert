@@ -899,7 +899,7 @@ class TimeConvertTools(object):
                 weeks += 1
         return weeks
 
-    def between(self, value: TimeAnyT, start_value: TimeAnyT, end_value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, start_format: Optional[str] = None, end_format: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def between(self, value: TimeAnyT, start_value: TimeAnyT, end_value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, start_format: Optional[str] = None, end_format: Optional[str] = None) -> bool:
         value = self.to_datetime(value, timezone=timezone, format=format, dttype='utc')
         start_value = self.to_datetime(start_value, timezone=timezone, format=format or start_format, dttype='utc')
         end_value = self.to_datetime(end_value, timezone=timezone, format=format or end_format, dttype='utc')
