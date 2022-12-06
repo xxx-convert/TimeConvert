@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-version = '3.0.11'
+version = '3.0.12'
 
 
 setup(
