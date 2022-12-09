@@ -201,27 +201,6 @@ class TimeConvertTools(object):
         utc_dt = dt.replace(tzinfo=tz.UTC)
         return utc_dt.astimezone(tzinfo)
 
-    def _to_utc_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
-        if self.is_utc_datetime(dt):
-            return dt
-        try:
-            dt = self.make_naive(dt)
-        except ValueError:
-            pass
-        tzinfo = self.tzinfo(timezone)
-        local_dt = dt.replace(tzinfo=tzinfo)
-        return local_dt.astimezone(tz.UTC)
-
-    def _to_local_datetime(self, dt: datetime.datetime, timezone: Optional[str] = None) -> datetime.datetime:
-        tzname = self.timezone(timezone)
-        tzinfo = self.tzinfo(tzname=tzname)
-        if not dt.tzinfo:
-            return dt.replace(tzinfo=tzinfo)
-        if self.is_local_datetime(dt, local_tz=tzname):
-            return dt
-        utc_dt = dt.replace(tzinfo=tz.UTC)
-        return utc_dt.astimezone(tzinfo)
-
     def to_datetime(self, value: TimeAnyT, timezone: Optional[str] = None, format: Optional[str] = None, idx: int = 0, years: int = 0, months: int = 0, days: int = 0, seconds: int = 0, microseconds: int = 0, milliseconds: int = 0, minutes: int = 0, hours: int = 0, weeks: int = 0, dttype: Optional[str] = None) -> Optional[datetime.date]:
         if isinstance(value, datetime.datetime):
             dt = value
