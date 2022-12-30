@@ -142,10 +142,20 @@ class TestTimeConvertCommands(object):
         dt = tc.utc_datetime(ms=False)
         assert dt.microsecond == 0
 
+        dt = tc.utc_datetime('2017-12-08 15:27:00')
+        assert dt.tzinfo == tz.UTC
+        dt = tc.utc_datetime('2017-12-08 15:27:00', ms=False)
+        assert dt.microsecond == 0
+
     def test_local_datetime(self):
         dt = tc.local_datetime()
         assert dt.tzinfo == tz.gettz(tc.TIME_ZONE)
         dt = tc.local_datetime(ms=False)
+        assert dt.microsecond == 0
+
+        dt = tc.local_datetime('2017-12-08 15:27:00')
+        assert dt.tzinfo == tz.gettz(tc.TIME_ZONE)
+        dt = tc.local_datetime('2017-12-08 15:27:00', ms=False)
         assert dt.microsecond == 0
 
     # DATE
