@@ -265,9 +265,13 @@ class TestTimeConvertCommands(object):
 
     def test_utc_string(self):
         assert tc.validate_string(tc.utc_string())
+        assert tc.utc_string(datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=tz.UTC)) == '2017-12-08 15:27:00'
+        assert tc.utc_string(datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=tz.UTC), days=23) == '2017-12-31 15:27:00'
 
     def test_local_string(self):
         assert tc.validate_string(tc.local_string())
+        assert tc.local_string(datetime.datetime(2017, 12, 8, 15, 27, 0)) == '2017-12-08 15:27:00'
+        assert tc.local_string(datetime.datetime(2017, 12, 8, 15, 27, 0), days=23) == '2017-12-31 15:27:00'
 
     def test_utc_datetime_string(self):
         assert tc.validate_string(tc.utc_datetime_string(), tc.DATETIME_FORMAT)
