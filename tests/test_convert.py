@@ -267,11 +267,15 @@ class TestTimeConvertCommands(object):
         assert tc.validate_string(tc.utc_string())
         assert tc.utc_string(datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=tz.UTC)) == '2017-12-08 15:27:00'
         assert tc.utc_string(datetime.datetime(2017, 12, 8, 15, 27, 0, tzinfo=tz.UTC), days=23) == '2017-12-31 15:27:00'
+        assert tc.utc_string('2017-12-08 15:27:00', days=23) == '2017-12-31 15:27:00'
+        assert tc.utc_string('2017-12-08', days=23) == '2017-12-31 00:00:00'
 
     def test_local_string(self):
         assert tc.validate_string(tc.local_string())
         assert tc.local_string(datetime.datetime(2017, 12, 8, 15, 27, 0)) == '2017-12-08 15:27:00'
         assert tc.local_string(datetime.datetime(2017, 12, 8, 15, 27, 0), days=23) == '2017-12-31 15:27:00'
+        assert tc.local_string('2017-12-08 15:27:00', days=23) == '2017-12-31 15:27:00'
+        assert tc.local_string('2017-12-08', days=23) == '2017-12-31 00:00:00'
 
     def test_utc_datetime_string(self):
         assert tc.validate_string(tc.utc_datetime_string(), tc.DATETIME_FORMAT)
@@ -294,9 +298,17 @@ class TestTimeConvertCommands(object):
     # DATE_STRING
     def test_utc_date_string(self):
         assert tc.validate_string(tc.utc_date_string(), tc.DATE_FORMAT)
+        assert tc.utc_date_string(datetime.date(2017, 12, 8)) == '2017-12-08'
+        assert tc.utc_date_string(datetime.date(2017, 12, 8), days=23) == '2017-12-31'
+        assert tc.utc_date_string('2017-12-08', days=23) == '2017-12-31'
+        assert tc.utc_date_string('2017-12-08 15:27:00', days=23) == '2017-12-31'
 
     def test_local_date_string(self):
         assert tc.validate_string(tc.local_date_string(), tc.DATE_FORMAT)
+        assert tc.local_date_string(datetime.date(2017, 12, 8)) == '2017-12-08'
+        assert tc.local_date_string(datetime.date(2017, 12, 8), days=23) == '2017-12-31'
+        assert tc.local_date_string('2017-12-08', days=23) == '2017-12-31'
+        assert tc.local_date_string('2017-12-08 15:27:00', days=23) == '2017-12-31'
 
     # YEAR_WEEK_STRING
     def test_utc_yearweek_string(self):
