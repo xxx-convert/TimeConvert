@@ -1,7 +1,7 @@
-# TimeConvert
+# TimeConvert [![Gitter](https://badges.gitter.im/Brightcells/TimeConvert.svg)](https://gitter.im/Brightcells/TimeConvert?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 TimeConvert is a simple time convert script(library) for Python, built for human beings.
 
-[![Gitter](https://badges.gitter.im/Brightcells/TimeConvert.svg)](https://gitter.im/Brightcells/TimeConvert?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+![Visualization of the codebase](./diagram.svg)
 
 # Installation
 ```shell
